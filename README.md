@@ -1,7 +1,9 @@
 # QRscore
 
 QRscore is an R package designed for analysis of differentially expressed genes (DEGs) and differentially distributed genes (DDGs). 
-![Workflow](images/fig1.jpg)
+
+![Workflow](image/fig1.jpg)
+
 ## Installation
 
 QRscore requires the following packages to run effectively:
