@@ -1,6 +1,6 @@
 # QRscore
 
-QRscore is an R package designed for analysis of differentially expressed genes (DEGs) and differentially distributed genes (DDGs). 
+QRscore is an R package designed for analysis of differentially expressed genes (DEGs) and differentially dispersed genes (DDGs). The workflow is shown in the following figure.
 
 ![Workflow](image/fig1.jpg)
 
@@ -72,7 +72,7 @@ coldata = coldata[kept_samples,]
 results <- QRscore.genetest(normalized_mat_1, coldata_1, pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 4, approx = "asymptotic")
 ```
 
-3. **Interpreting Results**: QRscore outputs include differential expression and differential dispersion p-values, together with log Fold Change and log Variance Change.
+3. **Interpreting Results**: QRscore outputs include differential expression and differential dispersion p-values, together with log Fold Change and log Variance Change. 
 
 
 ## License
