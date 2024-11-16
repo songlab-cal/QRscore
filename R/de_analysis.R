@@ -10,7 +10,7 @@
 #' @param test_dispersion Logical, whether to test the dispersion.
 #' @param num_cores Integer, number of cores to use for parallel processing.
 #' @param silent Logical, whether to suppress all messages except warnings and errors.
-#' @param ... Additional arguments passed to the `QRscore.test` function.
+#' @param rank Logical. If TRUE, returns a ranked list of DEGs or DDGs sorted by p-values.
 #' @param ... Additional arguments passed to the `QRscore.test` function.
 #' @return A list with two data frames: `mean_test` and `var_test`. 
 #' @export
@@ -19,14 +19,14 @@
 #' data(example_dataset)
 #' results <- QRscore.genetest(example_dataset$example_data1, example_dataset$labels1, 
 #'                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-#'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
+#'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
 #'                                approx = "asymptotic")
 #'                              
 #' head(results$mean_test)
 #'
 #' results2 <- QRscore.genetest(example_dataset$example_data2, example_dataset$labels2, 
 #'                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-#'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
+#'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
 #'                                approx = "asymptotic")
 #' head(results2$var_test)
 QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, pairwise_logFC = FALSE, test_mean = TRUE, test_dispersion = FALSE, num_cores = 1, silent = TRUE, rank = TRUE, ...) {

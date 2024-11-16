@@ -72,7 +72,7 @@ print(length(col_ids))
 kept_samples = coldata$age %in% c("20-39", "60-79")
 normalized_mat_1 = normalized_mat[, kept_samples]
 coldata_1 = coldata[kept_samples,]
-results_2_sample <- QRscore.genetest(normalized_mat_1, coldata_1, pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 4, approx = "asymptotic")
+results_2_sample <- QRscore.genetest(normalized_mat_1, coldata_1, pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 2, approx = "asymptotic")
 ```
 
 ```{r}
@@ -101,14 +101,14 @@ head(results_2_sample_DDG)
 #### An example for only calculating the 3-sample test p-values for QRscore-Var
 
 ```{r}
-results_3_sample <- QRscore.genetest(normalized_mat, coldata$age, pairwise_test = FALSE, pairwise_logFC = FALSE, test_mean = FALSE, test_dispersion = TRUE, num_cores = 4, approx = "asymptotic")
+results_3_sample <- QRscore.genetest(normalized_mat, coldata$age, pairwise_test = FALSE, pairwise_logFC = FALSE, test_mean = FALSE, test_dispersion = TRUE, num_cores = 2, approx = "asymptotic")
 head(results_3_sample$var_test)                             
 ```
 
 #### Full results: DDGs and DEGs and supplementary statistics, including pairwise 2-sample test p-values and fold changes.
 
 ```{r}
-results_3_sample <- QRscore.genetest(normalized_mat, coldata$age, pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 4, approx = "asymptotic")
+results_3_sample <- QRscore.genetest(normalized_mat, coldata$age, pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 2, approx = "asymptotic")
 head(results_3_sample$var_test) 
 head(results_3_sample$mean_test) 
 ```

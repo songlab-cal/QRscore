@@ -20,6 +20,14 @@ qzinbinom <- function(p, mu, theta, size, pi, lower.tail = TRUE, log.p = FALSE) 
   rval
 }
 
+#' Generate random samples from a zero-inflated negative binomial distribution
+#'
+#' @param n Integer. Number of samples to generate.
+#' @param mu Numeric. Mean of the negative binomial distribution.
+#' @param theta Numeric. Dispersion parameter (size) of the negative binomial distribution.
+#' @param size Numeric. Alternative name for the dispersion parameter (used interchangeably with 'theta').
+#' @param pi Numeric. Zero-inflation probability; must be in the range [0, 1].
+#' @return A vector of random samples from a zero-inflated negative binomial distribution.
 #' @export
 rzinbinom <- function(n, mu, theta, size, pi) {
   if(any(pi < 0) | any(pi > 1))  warning("'pi' must be in [0, 1]")

@@ -34,6 +34,8 @@ QRscore.genetest(
 
 \item{silent}{Logical, whether to suppress all messages except warnings and errors.}
 
+\item{rank}{Logical. If TRUE, returns a ranked list of DEGs or DDGs sorted by p-values.}
+
 \item{...}{Additional arguments passed to the \code{QRscore.test} function.}
 }
 \value{
@@ -46,14 +48,14 @@ This function performs differential expression analysis using the QRscore method
 data(example_dataset)
 results <- QRscore.genetest(example_dataset$example_data1, example_dataset$labels1, 
                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-                               test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
+                               test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
                                approx = "asymptotic")
                              
 head(results$mean_test)
 
 results2 <- QRscore.genetest(example_dataset$example_data2, example_dataset$labels2, 
                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-                               test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
+                               test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
                                approx = "asymptotic")
 head(results2$var_test)
 }

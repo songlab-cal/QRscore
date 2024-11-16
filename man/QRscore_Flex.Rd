@@ -78,7 +78,9 @@ set.seed(1)
 QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), alternative = "two.sided", approx = "resample")
 
 # Two-sample examples
-QRscore_Flex(x = abs(rnorm(30)), y = abs(rnorm(100)), p = 2, wList = rep(1,31), alternative = "two.sided", approx = "resample", resamp_number = 5000)
+QRscore_Flex(x = abs(rnorm(30)), y = abs(rnorm(100)), p = 2, 
+             wList = rep(1,31), alternative = "two.sided", approx = "resample", resamp_number = 5000)
 
-QRscore_Flex(x = abs(rnorm(100)), y = abs(rnorm(100)), p = 1, wList = 0:100, alternative = "two.sided", approx = "asymptotic")
+QRscore_Flex(x = abs(rnorm(100)), y = abs(rnorm(100)), p = 1, 
+             wList = 0:100, alternative = "two.sided", approx = "asymptotic")
 }

@@ -5,7 +5,7 @@ Date: 2024-04-14
 Authors@R: c(
     person("Fanding", "Zhou", email = "zhoufd@berkeley.edu", role = c("cre","aut"),
     comment = c(ORCID = "0000-0003-1306-740X")),
-    person("Alan", "Aw", email = "alanaw1@berkeley.edu", role = c("aut"), 
+    person("Alan", "Aw", email = "nalawanij@gmail.com", role = c("aut"), 
     comment = c(ORCID = "0000-0001-9455-7878")), 
     person("Dan", "Erdmann-Pham", email = "erdpham@stanford.edu", role = "aut"),
     person("Jonathan", "Fischer", email = "jfischer1@ufl.edu", role = "aut", 
@@ -22,7 +22,7 @@ Suggests:
     rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 NeedsCompilation: no
 Packaged: 2023-07-10 07:50:30 UTC; fandingzhou
 Author: Fanding Zhou [cre,aut],
