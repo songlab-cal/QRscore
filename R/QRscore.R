@@ -262,13 +262,13 @@ QRscore_Flex <- function(x, y = NULL,
 #' QRscore_ZINB(x = rzinbinom(100, size = 2, mu = 20, pi = 0),
 #'            y = rzinbinom(100, size = 2, mu = 30, pi = 0), 
 #'            zero_inflation = FALSE, LR.test = FALSE, alternative = "greater", 
-#'            approx = "resample", resamp_num = 5000, measure = "mean")
+#'            approx = "asymptotic", measure = "mean")
 #'
 #' # Two-sample example comparing dispersion shifts
 #' QRscore_ZINB(x = rzinbinom(100, size = 2, mu = 20, pi = 0.1),
 #'            y = rzinbinom(100, size = 1, mu = 20, pi = 0.1), 
 #'            zero_inflation = TRUE, LR.test = TRUE, alternative = "two.sided", 
-#'            approx = "resample", resamp_num = 5000, measure = "dispersion")
+#'            approx = "asymptotic", measure = "dispersion")
 #'
 #' # Two-sample example with significant zero inflation and variance shift
 #' QRscore_ZINB(x = rzinbinom(30, size = 4, mu = 20, pi = 0.1),
