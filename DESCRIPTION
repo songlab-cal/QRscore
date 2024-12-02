@@ -1,7 +1,7 @@
 Package: QRscore
 Title: Quantile Rank Score
 Version: 0.1.0
-Date: 2024-04-14
+Date: 2024-12-01
 Authors@R: c(
     person("Fanding", "Zhou", email = "zhoufd@berkeley.edu", role = c("cre","aut"),
     comment = c(ORCID = "0000-0003-1306-740X")),
@@ -12,9 +12,9 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-1165-9930")),
     person("Xurui", "Chen", email = "xuruichen@berkeley.edu", role = "ctb")
     )
-Description: In genomics, differential analysis enables the discovery of groups of genes implicating important biological processes such as cell differentiation and aging. Current non-parametric tests of differential gene expression are limited by their diminished power against alternatives characterized by shifts in spread (such as variance) rather than measures of centrality (such as mean or median). This package provides a flexible family of non-parametric two-sample tests and K-sample tests, which is based on theoretical work demonstrating the connection between widely used non-parametric tests and spacing statistics (Erdmann-Pham et al., 2022+).  
+Description: In genomics, differential analysis enables the discovery of groups of genes implicating important biological processes such as cell differentiation and aging. Non-parametric tests of differential gene expression usually detect shifts in centrality (such as mean or median), and therefore suffer from diminished power against alternative hypotheses characterized by shifts in spread (such as variance). This package provides a flexible family of non-parametric two-sample tests and K-sample tests, which is based on theoretical work around non-parametric tests, spacing statistics and local asymptotic normality (Erdmann-Pham et al., 2022+ [arXiv:2008.06664v2]; Erdmann-Pham, 2023+ [arXiv:2209.14235v2]).  
 License: GPL (>= 3)
-Depends: MASS, pscl, arrangements,hitandrun, assertthat,dplyr, BiocParallel
+Depends: MASS, pscl, arrangements, hitandrun, assertthat, dplyr, BiocParallel
 Suggests: 
     devtools,
     DESeq2,
@@ -30,5 +30,5 @@ Author: Fanding Zhou [cre,aut],
   Dan Erdmann-Pham [aut],
   Jonathan Fischer [aut] (<https://orcid.org/0000-0002-1165-9930>), 
   Xurui Chen [ctb]
-Maintainer: Fanding Zhou <zhoufd@berkeley.edu>
+Maintainer: Fanding Zhou <zhoufd@berkeley.edu>, Alan Aw <nalawanij@gmail.com>
 VignetteBuilder: knitr

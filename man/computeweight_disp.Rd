@@ -17,22 +17,22 @@ computeweight_disp(beta, mu, pi, n, k, tail = 10^(-4), bigN = 10^6, seed = 1)
 
 \item{k}{Sample size of \eqn{x}}
 
-\item{tail}{Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^(-4)}}
+\item{tail}{Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^{-4}}}
 
 \item{bigN}{Sampling numbers for numerically calculate expectation, this will only be applied when mean parameter is extremely large. Default is \eqn{10^6}}
 
 \item{seed}{Random seed for sampling.}
 }
 \value{
-A list containing a weight vector 'weight' and estimated variance 'var' useful for constructing test statistics.
+A list containing a weight vector (\verb{$weight}) and estimated variance (\verb{$var}) useful for constructing test statistics.
 }
 \description{
-Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{beta}, \eqn{mu}, \eqn{pi}),
+Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{\beta}, \eqn{\mu}, \eqn{\pi}),
 the sample sizes \eqn{n} and \eqn{k} (by default \eqn{n\geqslant k}), this function computes weights that target on changes of the
 dispersion parameter in zero-inflated negative binomial model.
 }
 \details{
-The function returns a list containing a weight vector 'weight' and estimated variance 'var' for constructing test statistics.
+The function returns a list containing a weight vector and estimated variance for constructing test statistics.
 }
 \examples{
 

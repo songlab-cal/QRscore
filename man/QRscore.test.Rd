@@ -2,7 +2,7 @@
 % Please edit documentation in R/QRscore.R
 \name{QRscore.test}
 \alias{QRscore.test}
-\title{QRscore - Multivariate Outlier Check and Homogeneity Inspection System}
+\title{QRscore Test}
 \usage{
 QRscore.test(
   samples,
@@ -27,21 +27,21 @@ QRscore.test(
 \arguments{
 \item{samples}{A numeric vector containing all sample measurements.}
 
-\item{labels}{An optional vector of group labels corresponding to each entry in 'samples'.}
+\item{labels}{An optional vector of group labels corresponding to each entry in \code{samples}.}
 
-\item{p}{The exponent used in the power sum test statistic, required if 'wList' is provided.}
+\item{p}{The exponent used in the power sum test statistic, required if \code{wList} is not \code{NULL}.}
 
-\item{wList}{An optional vector of weights; if NULL, weights are estimated using an NB or ZINB model for multiple groups.}
+\item{wList}{An optional vector of weights; if \code{NULL}, weights are estimated using an NB or ZINB model for multiple groups.}
 
-\item{alternative}{Specifies the alternative hypothesis; must be one of "two.sided", "greater", or "less".}
+\item{alternative}{Specifies the alternative hypothesis; must be one of "\code{two.sided}", "\code{greater}", or "\code{less}".}
 
-\item{approx}{The method used for p-value approximation, either "resample" or "asymptotic".}
+\item{approx}{The method used for p-value approximation, either "\code{resample}" or "\code{asymptotic}".}
 
-\item{type}{Specifies if the estimation of the p-value should be "unbiased", "valid", or both.}
+\item{type}{Specifies if the estimation of the p-value should be "\code{unbiased}", "\code{valid}", or both.}
 
 \item{n_mom}{The number of moments to accompany the approximation, relevant for moment-based methods.}
 
-\item{resamp_number}{The number of resampling iterations used if 'approx' is "resample".}
+\item{resamp_number}{The number of resampling iterations used if \code{approx} is "\code{resample}".}
 
 \item{zero_inflation}{Indicates whether to account for zero inflation in model-based weight estimation.}
 
@@ -51,7 +51,7 @@ QRscore.test(
 
 \item{gene.name}{Optional identifier for a gene, used in output messages.}
 
-\item{measure}{Specifies the statistical measure to be analyzed ("mean" or "dispersion") when weights are auto-generated.}
+\item{measure}{Specifies the statistical measure to be analyzed ("\code{mean}" or "\code{dispersion}") when weights are auto-generated.}
 
 \item{perturb}{Boolean to indicate if data should be perturbed slightly to prevent ties.}
 
@@ -70,7 +70,7 @@ For one-sample tests, the function assesses the uniformity of data entries. For 
 it evaluates whether groups are drawn from the same distribution, with alternative hypotheses considering
 differences in means or dispersions.
 
-If the weights and p are given, the function calculates the test statistic as:
+If the weights and \eqn{p} are given, the function calculates the test statistic as:
 \deqn{||S_k||_{p,\boldsymbol{w}}^p=\sum_{j=1}^k w_iS_{k}[j]^p}
 where \eqn{w_i} are weights, \eqn{x_i} are data points, and \eqn{p} is the power specified.
 
@@ -82,28 +82,32 @@ using score function for a Negative Binomial or a Zero-Inflated Negative Binomia
 set.seed(1)
 # One-sample test example with normally distributed data
 data <- abs(rnorm(10))
-QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", approx = "resample")
+QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 
+              approx = "resample")
 
 # Two-sample test with specified weights using normally distributed data
 group1 <- rnorm(120, sd = 1)
 group2 <- rnorm(120, sd = 2) # Different mean
 data <- c(group1, group2)
 labels <- c(rep("Group1", 120), rep("Group2", 120))
-QRscore.test(samples = data, labels = labels, p = 1, wList = c(60:0,1:60), alternative = "two.sided", approx = "resample")
+QRscore.test(samples = data, labels = labels, p = 1, wList = c(60:0,1:60), 
+              alternative = "two.sided", approx = "resample")
 
 # Two-sample test with automatically estimated weights from NB model
 group1 <- rzinbinom(120, size = 2, mu = 20, pi = 0)
 group2 <- rzinbinom(100, size = 2, mu = 30, pi = 0) # Different mean
 data <- c(group1, group2)
 labels <- c(rep("Group1", 120), rep("Group2", 100))
-QRscore.test(samples = data, labels = labels, approx = "asymptotic", measure = "mean", zero_inflation = FALSE)
+QRscore.test(samples = data, labels = labels, 
+            approx = "asymptotic", measure = "mean", zero_inflation = FALSE)
 
 # Two-sample test with automatically estimated weights from ZINB model
 group1 <- rzinbinom(100, size = 2, mu = 40, pi = 0.1)
 group2 <- rzinbinom(200, size = 1, mu = 40, pi = 0.1) # Different size and zero-inflation
 data <- c(group1, group2)
 labels <- c(rep("Group1", 100), rep("Group2", 200))
-QRscore.test(samples = data, labels = labels, alternative = "two.sided", approx = "asymptotic", measure = "dispersion")
+QRscore.test(samples = data, labels = labels, alternative = "two.sided", 
+              approx = "asymptotic", measure = "dispersion")
 
 # Three-sample test with automatically estimated weights from NB model
 group1 <- rzinbinom(150, size = 1, mu = 30, pi = 0.1)
@@ -111,5 +115,6 @@ group2 <- rzinbinom(100, size = 2, mu = 30, pi = 0.1)
 group3 <- rzinbinom(30, size = 3, mu = 30, pi = 0.1)
 data <- c(group1, group2, group3)
 labels <- c(rep("Group1", 150), rep("Group2", 100), rep("Group3", 30))
-QRscore.test(samples = data, labels = labels, alternative = "two.sided", approx = "asymptotic", measure = "dispersion")
+QRscore.test(samples = data, labels = labels, alternative = "two.sided", 
+              approx = "asymptotic", measure = "dispersion")
 }

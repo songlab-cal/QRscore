@@ -2,8 +2,8 @@
 % Please edit documentation in R/QRscore.R
 \name{QRscore_ZINB}
 \alias{QRscore_ZINB}
-\title{Non-Parametric Two-Sample Tests designed for testing differences in mean or dispersion parameters in
-(zero-inflated) negative binomial distributions.}
+\title{Non-Parametric Two-Sample Tests Designed for Testing Differences in Mean or Dispersion Parameters in
+(Zero-Inflated) Negative Binomial Distributions.}
 \usage{
 QRscore_ZINB(
   x,
@@ -39,7 +39,7 @@ QRscore_ZINB(
 
 \item{gene.name}{Optional, name of the gene if applicable, used for customized messages.}
 
-\item{measure}{Specifies whether to test for shifts in 'mean' or 'dispersion'.}
+\item{measure}{Specifies whether to test for shifts in "\code{mean}" or "\code{dispersion}".}
 
 \item{p_value}{If TRUE, returns a p-value, else returns test statistics and weights.}
 
@@ -51,7 +51,7 @@ p-value or test statistics depending on \code{p_value} parameter
 \description{
 This function evaluates the null hypothesis that two samples, \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}},
 are drawn from the same distribution, specifically designed for NB or ZINB models. It is particularly effective
-in detecting shifts in either the mean or the dispersion parameters, based on the specified 'measure'.
+in detecting shifts in either the mean or the dispersion parameters.
 }
 \details{
 The function automatically computes optimal weights for the chosen model and derives a p-value based on

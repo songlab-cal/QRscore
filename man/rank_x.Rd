@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary.R
 \name{rank_x}
 \alias{rank_x}
-\title{Retrieve the indices of \eqn{x_i}s after merging x and y in ascending order.}
+\title{Retrieve indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.}
 \usage{
 rank_x(x, y = NULL, ties.break = TRUE, seed = 1)
 }
@@ -11,17 +11,17 @@ rank_x(x, y = NULL, ties.break = TRUE, seed = 1)
 
 \item{y}{Second sample}
 
-\item{ties.break}{Whether to break the ties when ordering x and y. Default is \code{'TRUE'}.}
+\item{ties.break}{Whether to break the ties when ordering \code{x} and \code{y}. Default is \code{'TRUE'}.}
 
 \item{seed}{Random seed for tie breaking.}
 }
 \value{
-Ranks of \eqn{x_i}s after merging x and y in ascending order
+Ranks of \eqn{x_i}'s after merging \code{x} and \code{y} in ascending order
 }
 \description{
 Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
 or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
-this function obtains the indices of \eqn{x_i}s after merging x and y in ascending order.
+this function obtains the indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.
 }
 \details{
 Dependencies: None

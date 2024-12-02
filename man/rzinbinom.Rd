@@ -13,12 +13,12 @@ rzinbinom(n, mu, theta, size, pi)
 
 \item{theta}{Numeric. Dispersion parameter (size) of the negative binomial distribution.}
 
-\item{size}{Numeric. Alternative name for the dispersion parameter (used interchangeably with 'theta').}
+\item{size}{Numeric. Alternative name for the dispersion parameter (used interchangeably with \code{theta}).}
 
-\item{pi}{Numeric. Zero-inflation probability; must be in the range \link{0, 1}.}
+\item{pi}{Numeric. Zero-inflation probability; must be in the range \eqn{[0,1]}.}
 }
 \value{
-A vector of random samples from a zero-inflated negative binomial distribution.
+A vector of random samples from a Zero-Inflated Negative Binomial (ZINB) distribution.
 }
 \description{
 Generate random samples from a zero-inflated negative binomial distribution

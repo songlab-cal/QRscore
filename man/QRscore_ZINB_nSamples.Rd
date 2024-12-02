@@ -3,7 +3,7 @@
 \name{QRscore_ZINB_nSamples}
 \alias{QRscore_ZINB_nSamples}
 \title{Multi-Sample Nonparametric Test for Mean or Dispersion Differences in
-(zero-inflated) negative binomial distributions.}
+(Zero-Inflated) Negative Binomial Distributions.}
 \usage{
 QRscore_ZINB_nSamples(
   samples,
@@ -28,15 +28,15 @@ QRscore_ZINB_nSamples(
 
 \item{LR.test}{Boolean, if TRUE, performs a likelihood ratio test to select between NB and ZINB models.}
 
-\item{approx}{The method used for p-value approximation; 'resample' (default) or 'asymptotic'.}
+\item{approx}{The method used for p-value approximation; "\code{resample}" (default) or "\code{asymptotic}".}
 
-\item{resamp_num}{The number of resampling iterations used if 'approx' is 'resample'.}
+\item{resamp_num}{The number of resampling iterations used if \code{approx} is "\code{resample}".}
 
 \item{pi_threshold}{Threshold for proportion of zeros at which to return NA, indicating unreliable results due to excessive zero inflation.}
 
 \item{gene.name}{Optional, name of the gene if applicable, enhancing the relevance of output in genetic studies.}
 
-\item{measure}{Specifies whether the test focuses on 'mean' or 'dispersion' differences.}
+\item{measure}{Specifies whether the test focuses on "\code{mean}" or "\code{dispersion}" differences.}
 
 \item{perturb}{Boolean, if TRUE, adds small noise to data to avoid ties and improve model stability.}
 
@@ -72,7 +72,8 @@ and other auxiliary functions as needed.
 \examples{
 
 set.seed(123)
-data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), rnbinom(100, size = 2, mu = 30))
+data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
+          rnbinom(100, size = 2, mu = 30))
 labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
 QRscore_ZINB_nSamples(samples = data, labels = labels,
                               zero_inflation = FALSE, LR.test = FALSE, approx = "resample",

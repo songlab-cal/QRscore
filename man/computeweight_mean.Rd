@@ -18,10 +18,10 @@ computeweight_mean(beta, mu, pi, n, k)
 \item{k}{Sample size of \eqn{x}}
 }
 \value{
-A list containing a weight vector 'weight' and estimated variance 'var' useful for constructing test statistics.
+A list containing a weight vector (\verb{$weight}) and estimated variance (\verb{$var}) useful for constructing test statistics.
 }
 \description{
-Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{beta}, \eqn{mu}, \eqn{pi}),
+Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{\beta}, \eqn{\mu}, \eqn{\pi}),
 the sample sizes \eqn{n} and \eqn{k} (by default \eqn{n\geqslant k}), this function computes weights that target changes in the
 mean parameter of the zero-inflated negative binomial model.
 }

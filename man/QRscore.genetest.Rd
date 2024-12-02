@@ -18,7 +18,7 @@ QRscore.genetest(
 )
 }
 \arguments{
-\item{normalized_matrix}{A prefiltered normalized matrix (gene x sample).}
+\item{normalized_matrix}{A prefiltered normalized matrix (gene \eqn{\times} sample).}
 
 \item{labels}{A vector of labels corresponding to the samples.}
 

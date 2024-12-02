@@ -1,4 +1,4 @@
-# # One-sample test example with normally distributed data' Flexible Non-Parametric One- and Two-Sample Tests (Native R version)
+#' Flexible Non-Parametric One- and Two-Sample Tests (Native R version)
 #'
 #' Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
 #' or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
@@ -39,9 +39,9 @@
 #' and one more than the length of \eqn{x} when \eqn{y} is not `NULL`
 #' @param alternative How p-value should be computed; i.e., a character specifying the alternative hypothesis,
 #' must be one of "`two.sided`", "`greater`" or "`less`"
-#' @param approx Which approximation method to use (choose `resample`, `asymptotic`)
-#' @param type If using resampling approximation, either an unbiased estimate of (`'unbiased'`, default),
-#' or valid, but biased estimate of, (`'valid'`) p-value (see Hemerik and Goeman, 2018), or both (`'both'`). Default is `'unbiased'`.
+#' @param approx Which approximation method to use (choose "`resample`", "`asymptotic`")
+#' @param type If using resampling approximation, either an unbiased estimate of ("`unbiased`", default),
+#' or valid, but biased estimate of, ("`valid`") p-value (see Hemerik and Goeman, 2018), or both ("`both`"). Default is "`unbiased`".
 #' @param n_mom The number of moments to accompany the approximation (recommended 200, if not at least 100)
 #' @param resamp_number Number of \eqn{k}-compositions of \eqn{n} or simplex vectors in \eqn{[0,1]^k}  to draw
 #' @export
@@ -49,14 +49,17 @@
 #'
 #' set.seed(1)
 #' # One-sample examples
-#' QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), alternative = "two.sided", approx = "resample")
+#' QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
+#'               alternative = "two.sided", approx = "resample")
 #'
 #' # Two-sample examples
 #' QRscore_Flex(x = abs(rnorm(30)), y = abs(rnorm(100)), p = 2, 
-#'              wList = rep(1,31), alternative = "two.sided", approx = "resample", resamp_number = 5000)
+#'              wList = rep(1,31), alternative = "two.sided", 
+#'               approx = "resample", resamp_number = 5000)
 #' 
 #' QRscore_Flex(x = abs(rnorm(100)), y = abs(rnorm(100)), p = 1, 
-#'              wList = 0:100, alternative = "two.sided", approx = "asymptotic")
+#'              wList = 0:100, alternative = "two.sided", 
+#'               approx = "asymptotic")
 #' @export
 #' 
 #' 
@@ -77,8 +80,10 @@ QRscore_Flex <- function(x, y = NULL,
     k <- length(x)
   }
   # 2. Assert conditions
-  assertthat::assert_that(p == 1 | p == 2, msg = "Currently only p == 1 or p == 2 are supported.")
-  
+  assertthat::assert_that(p == 1 | p == 2, 
+                          msg = "Currently only p = 1 or p = 2 is supported.")
+  assertthat::assert_that(approx == "resample" | approx == "asymptotic", 
+                          msg= "Currently only approx = 'resample' or approx = 'asymptotic' is supported")
   # 3. Normalize weights
   message(date(), ": Normalizing weight vector...")
   wList <- wList / max(wList)
@@ -220,12 +225,12 @@ QRscore_Flex <- function(x, y = NULL,
 }
 
 
-#' Non-Parametric Two-Sample Tests designed for testing differences in mean or dispersion parameters in 
-#' (zero-inflated) negative binomial distributions.
+#' Non-Parametric Two-Sample Tests Designed for Testing Differences in Mean or Dispersion Parameters in 
+#' (Zero-Inflated) Negative Binomial Distributions.
 #'
 #' This function evaluates the null hypothesis that two samples, \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}},
 #' are drawn from the same distribution, specifically designed for NB or ZINB models. It is particularly effective
-#' in detecting shifts in either the mean or the dispersion parameters, based on the specified 'measure'.
+#' in detecting shifts in either the mean or the dispersion parameters.
 #'
 #' The function automatically computes optimal weights for the chosen model and derives a p-value based on
 #' the selected test statistic and approximation method.
@@ -246,7 +251,7 @@ QRscore_Flex <- function(x, y = NULL,
 #' @param resamp_num Number of \eqn{k}-compositions of \eqn{n} or simplex vectors in \eqn{[0,1]^k} to draw
 #' @param pi_threshold Threshold for estimated proportion of zeros in ZINB model.
 #' @param gene.name Optional, name of the gene if applicable, used for customized messages.
-#' @param measure Specifies whether to test for shifts in 'mean' or 'dispersion'.
+#' @param measure Specifies whether to test for shifts in "`mean`" or "`dispersion`".
 #' @param p_value If TRUE, returns a p-value, else returns test statistics and weights.
 #' @param seed Random seed for sampling, ensures reproducibility in resampling methods.
 #' @return p-value or test statistics depending on `p_value` parameter
@@ -376,7 +381,7 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 
 
 #' Multi-Sample Nonparametric Test for Mean or Dispersion Differences in 
-#' (zero-inflated) negative binomial distributions.
+#' (Zero-Inflated) Negative Binomial Distributions.
 #'
 #' This function conducts statistical tests across multiple samples to evaluate the null hypothesis
 #' that all groups are drawn from the same distribution. It is optimized for data modeled by
@@ -402,11 +407,11 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #' @param labels Group labels for each sample.
 #' @param zero_inflation Boolean, if TRUE, the function chooses between ZINB and NB models based on data; if FALSE, only NB model is applied.
 #' @param LR.test Boolean, if TRUE, performs a likelihood ratio test to select between NB and ZINB models.
-#' @param approx The method used for p-value approximation; 'resample' (default) or 'asymptotic'.
-#' @param resamp_num The number of resampling iterations used if 'approx' is 'resample'.
+#' @param approx The method used for p-value approximation; "`resample`" (default) or "`asymptotic`".
+#' @param resamp_num The number of resampling iterations used if `approx` is "`resample`".
 #' @param pi_threshold Threshold for proportion of zeros at which to return NA, indicating unreliable results due to excessive zero inflation.
 #' @param gene.name Optional, name of the gene if applicable, enhancing the relevance of output in genetic studies.
-#' @param measure Specifies whether the test focuses on 'mean' or 'dispersion' differences.
+#' @param measure Specifies whether the test focuses on "`mean`" or "`dispersion`" differences.
 #' @param perturb Boolean, if TRUE, adds small noise to data to avoid ties and improve model stability.
 #' @param seed Seed for random number generation, ensuring reproducibility.
 #' @return Returns the p-value of the test if `p_value` is TRUE, otherwise returns test statistics and weights.
@@ -414,7 +419,8 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #' @examples
 #'
 #' set.seed(123)
-#' data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), rnbinom(100, size = 2, mu = 30))
+#' data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
+#'           rnbinom(100, size = 2, mu = 30))
 #' labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
 #' QRscore_ZINB_nSamples(samples = data, labels = labels,
 #'                               zero_inflation = FALSE, LR.test = FALSE, approx = "resample",
@@ -470,7 +476,8 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
   # Weight calculation 
   x = sample_list[[1]]
   y = unlist(sample_list[-1], use.names = FALSE)
-  results = QRscore_ZINB(x,y,zero_inflation = zero_inflation,LR.test = LR.test, approx = approx, resamp_num = resamp_num, pi_threshold = pi_threshold, 
+  results = QRscore_ZINB(x,y,zero_inflation = zero_inflation,LR.test = LR.test, 
+                         approx = approx, resamp_num = resamp_num, pi_threshold = pi_threshold, 
                          gene.name = gene.name,measure = measure,p_value = FALSE,seed = seed)
   if(!is.list(results)){
     return(NA)
@@ -504,7 +511,8 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
     if (is.null(gene.name)) {
       warning("Covariance matrix contains NA or Inf values, returning NA.")
     } else {
-      warning(paste0("Covariance matrix contains NA or Inf values for gene ", gene.name, ", returning NA."))
+      warning(paste0("Covariance matrix contains NA or Inf values for gene ", 
+                     gene.name, ", returning NA."))
     }
     return(NA)
   }
@@ -518,7 +526,8 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
       if (is.null(gene.name)) {
         warning("Covariance matrix is not invertible, returning NA.")
       } else {
-        warning(paste0("Covariance matrix is not invertible for gene ", gene.name, ", returning NA."))
+        warning(paste0("Covariance matrix is not invertible for gene ", 
+                       gene.name, ", returning NA."))
       }
       return(NA)
     })
@@ -532,7 +541,7 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
   return(p.value[1,1])
 }
 
-#' QRscore - Multivariate Outlier Check and Homogeneity Inspection System
+#' QRscore Test
 #'
 #' This function performs statistical tests on data from one or more groups using summary statistics
 #' computed on weighted linear combinations of powers of spacing statistics. It is capable of conducting
@@ -543,7 +552,7 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
 #' it evaluates whether groups are drawn from the same distribution, with alternative hypotheses considering
 #' differences in means or dispersions.
 #'
-#' If the weights and p are given, the function calculates the test statistic as:
+#' If the weights and \eqn{p} are given, the function calculates the test statistic as:
 #' \deqn{||S_k||_{p,\boldsymbol{w}}^p=\sum_{j=1}^k w_iS_{k}[j]^p}
 #' where \eqn{w_i} are weights, \eqn{x_i} are data points, and \eqn{p} is the power specified.
 #'
@@ -551,19 +560,19 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
 #' using score function for a Negative Binomial or a Zero-Inflated Negative Binomial model, optimizing for dispersion or mean shifts.
 #'
 #' @param samples A numeric vector containing all sample measurements.
-#' @param labels An optional vector of group labels corresponding to each entry in 'samples'.
-#' @param p The exponent used in the power sum test statistic, required if 'wList' is provided.
-#' @param wList An optional vector of weights; if NULL, weights are estimated using an NB or ZINB model for multiple groups.
-#' @param alternative Specifies the alternative hypothesis; must be one of "two.sided", "greater", or "less".
-#' @param approx The method used for p-value approximation, either "resample" or "asymptotic".
-#' @param type Specifies if the estimation of the p-value should be "unbiased", "valid", or both.
+#' @param labels An optional vector of group labels corresponding to each entry in `samples`.
+#' @param p The exponent used in the power sum test statistic, required if `wList` is not `NULL`.
+#' @param wList An optional vector of weights; if `NULL`, weights are estimated using an NB or ZINB model for multiple groups.
+#' @param alternative Specifies the alternative hypothesis; must be one of "`two.sided`", "`greater`", or "`less`".
+#' @param approx The method used for p-value approximation, either "`resample`" or "`asymptotic`".
+#' @param type Specifies if the estimation of the p-value should be "`unbiased`", "`valid`", or both.
 #' @param n_mom The number of moments to accompany the approximation, relevant for moment-based methods.
-#' @param resamp_number The number of resampling iterations used if 'approx' is "resample".
+#' @param resamp_number The number of resampling iterations used if `approx` is "`resample`".
 #' @param zero_inflation Indicates whether to account for zero inflation in model-based weight estimation.
 #' @param LR.test Whether a likelihood ratio test is used to decide between NB and ZINB models.
 #' @param pi_threshold Threshold for the proportion of zeros in ZINB models; results in NA if exceeded.
 #' @param gene.name Optional identifier for a gene, used in output messages.
-#' @param measure Specifies the statistical measure to be analyzed ("mean" or "dispersion") when weights are auto-generated.
+#' @param measure Specifies the statistical measure to be analyzed ("`mean`" or "`dispersion`") when weights are auto-generated.
 #' @param perturb Boolean to indicate if data should be perturbed slightly to prevent ties.
 #' @param use_base_r Boolean to decide whether to use base R functions for certain edge cases like Mann-Whitney tests.
 #' @param seed Integer to set the seed for reproducibility in resampling methods.
@@ -573,28 +582,32 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
 #' set.seed(1)
 #' # One-sample test example with normally distributed data
 #' data <- abs(rnorm(10))
-#' QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", approx = "resample")
+#' QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 
+#'               approx = "resample")
 #'
 #' # Two-sample test with specified weights using normally distributed data
 #' group1 <- rnorm(120, sd = 1)
 #' group2 <- rnorm(120, sd = 2) # Different mean
 #' data <- c(group1, group2)
 #' labels <- c(rep("Group1", 120), rep("Group2", 120))
-#' QRscore.test(samples = data, labels = labels, p = 1, wList = c(60:0,1:60), alternative = "two.sided", approx = "resample")
+#' QRscore.test(samples = data, labels = labels, p = 1, wList = c(60:0,1:60), 
+#'               alternative = "two.sided", approx = "resample")
 #'
 #' # Two-sample test with automatically estimated weights from NB model
 #' group1 <- rzinbinom(120, size = 2, mu = 20, pi = 0)
 #' group2 <- rzinbinom(100, size = 2, mu = 30, pi = 0) # Different mean
 #' data <- c(group1, group2)
 #' labels <- c(rep("Group1", 120), rep("Group2", 100))
-#' QRscore.test(samples = data, labels = labels, approx = "asymptotic", measure = "mean", zero_inflation = FALSE)
+#' QRscore.test(samples = data, labels = labels, 
+#'             approx = "asymptotic", measure = "mean", zero_inflation = FALSE)
 #'
 #' # Two-sample test with automatically estimated weights from ZINB model
 #' group1 <- rzinbinom(100, size = 2, mu = 40, pi = 0.1)
 #' group2 <- rzinbinom(200, size = 1, mu = 40, pi = 0.1) # Different size and zero-inflation
 #' data <- c(group1, group2)
 #' labels <- c(rep("Group1", 100), rep("Group2", 200))
-#' QRscore.test(samples = data, labels = labels, alternative = "two.sided", approx = "asymptotic", measure = "dispersion")
+#' QRscore.test(samples = data, labels = labels, alternative = "two.sided", 
+#'               approx = "asymptotic", measure = "dispersion")
 #'
 #' # Three-sample test with automatically estimated weights from NB model
 #' group1 <- rzinbinom(150, size = 1, mu = 30, pi = 0.1)
@@ -602,7 +615,8 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
 #' group3 <- rzinbinom(30, size = 3, mu = 30, pi = 0.1)
 #' data <- c(group1, group2, group3)
 #' labels <- c(rep("Group1", 150), rep("Group2", 100), rep("Group3", 30))
-#' QRscore.test(samples = data, labels = labels, alternative = "two.sided", approx = "asymptotic", measure = "dispersion")
+#' QRscore.test(samples = data, labels = labels, alternative = "two.sided", 
+#'               approx = "asymptotic", measure = "dispersion")
 #' @export
 #' 
 QRscore.test <- function(samples, labels = NULL,

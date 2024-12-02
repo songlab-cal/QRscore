@@ -2,10 +2,7 @@
 % Please edit documentation in R/QRscore.R
 \name{QRscore_Flex}
 \alias{QRscore_Flex}
-\title{Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
-or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
-this function uses summary statistics computed on weighted linear combinations of powers of
-the spacing statistics \eqn{S_k} (former) or \eqn{S_{n,k}} (latter).}
+\title{Flexible Non-Parametric One- and Two-Sample Tests (Native R version)}
 \usage{
 QRscore_Flex(
   x,
@@ -32,19 +29,24 @@ and one more than the length of \eqn{x} when \eqn{y} is not \code{NULL}}
 \item{alternative}{How p-value should be computed; i.e., a character specifying the alternative hypothesis,
 must be one of "\code{two.sided}", "\code{greater}" or "\code{less}"}
 
-\item{approx}{Which approximation method to use (choose \code{resample}, \code{asymptotic})}
+\item{approx}{Which approximation method to use (choose "\code{resample}", "\code{asymptotic}")}
 
-\item{type}{If using resampling approximation, either an unbiased estimate of (\code{'unbiased'}, default),
-or valid, but biased estimate of, (\code{'valid'}) p-value (see Hemerik and Goeman, 2018), or both (\code{'both'}). Default is \code{'unbiased'}.}
+\item{type}{If using resampling approximation, either an unbiased estimate of ("\code{unbiased}", default),
+or valid, but biased estimate of, ("\code{valid}") p-value (see Hemerik and Goeman, 2018), or both ("\code{both}"). Default is "\code{unbiased}".}
 
 \item{n_mom}{The number of moments to accompany the approximation (recommended 200, if not at least 100)}
 
 \item{resamp_number}{Number of \eqn{k}-compositions of \eqn{n} or simplex vectors in \eqn{[0,1]^k}  to draw}
 }
 \description{
-More precisely, this function does the following:
+Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
+or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
+this function uses summary statistics computed on weighted linear combinations of powers of
+the spacing statistics \eqn{S_k} (former) or \eqn{S_{n,k}} (latter).
 }
 \details{
+More precisely, this function does the following:
+
 For a single sample \eqn{x}, the function tests for uniformity of its entries. When \eqn{p=2}
 and a particular choice of \eqn{\boldsymbol{w}} is specified, we recover Greenwood's test.
 
@@ -75,12 +77,15 @@ Dependencies: functions in \code{auxiliary.R}
 
 set.seed(1)
 # One-sample examples
-QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), alternative = "two.sided", approx = "resample")
+QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
+              alternative = "two.sided", approx = "resample")
 
 # Two-sample examples
 QRscore_Flex(x = abs(rnorm(30)), y = abs(rnorm(100)), p = 2, 
-             wList = rep(1,31), alternative = "two.sided", approx = "resample", resamp_number = 5000)
+             wList = rep(1,31), alternative = "two.sided", 
+              approx = "resample", resamp_number = 5000)
 
 QRscore_Flex(x = abs(rnorm(100)), y = abs(rnorm(100)), p = 1, 
-             wList = 0:100, alternative = "two.sided", approx = "asymptotic")
+             wList = 0:100, alternative = "two.sided", 
+              approx = "asymptotic")
 }

@@ -2,7 +2,7 @@
 #'
 #' This function performs differential expression analysis using the QRscore method.
 #'
-#' @param normalized_matrix A prefiltered normalized matrix (gene x sample).
+#' @param normalized_matrix A prefiltered normalized matrix (gene \eqn{\times} sample).
 #' @param labels A vector of labels corresponding to the samples.
 #' @param pairwise_test Logical, whether to perform pairwise test statistics for more than two groups.
 #' @param pairwise_logFC Logical, whether to calculate pairwise log fold changes for mean and variance.
@@ -29,7 +29,10 @@
 #'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
 #'                                approx = "asymptotic")
 #' head(results2$var_test)
-QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, pairwise_logFC = FALSE, test_mean = TRUE, test_dispersion = FALSE, num_cores = 1, silent = TRUE, rank = TRUE, ...) {
+QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, 
+                             pairwise_logFC = FALSE, test_mean = TRUE, 
+                             test_dispersion = FALSE, num_cores = 1, 
+                             silent = TRUE, rank = TRUE, ...) {
   if (num_cores > 1 && BiocParallel::multicoreWorkers() > 1) {
     bpparam <- BiocParallel::MulticoreParam(workers = num_cores)
   } else {
@@ -44,9 +47,13 @@ QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, p
   combined_list <- Map(function(x, y) list(x, y), normalized_list, gene_names_list)
   
   if (silent) {
-    results_list <- suppressMessages(BiocParallel::bplapply(combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...))
+    results_list <- suppressMessages(BiocParallel::bplapply(
+      combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, 
+      pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...))
   } else {
-    results_list <- BiocParallel::bplapply(combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...)
+    results_list <- BiocParallel::bplapply(
+      combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, 
+      pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...)
   }
   
   # Extract and combine the results into two data frames
@@ -91,14 +98,16 @@ QRscore_one_gene_test <- function(gene_list, labels, pairwise_test = TRUE, pairw
     y <- gene_vec[labels == unique_labels[2]]
     
     if (test_mean) {
-      QRscore_test_mean <- QRscore.test(samples = gene_vec, labels = labels, measure = "mean", gene.name = gene.name...)
+      QRscore_test_mean <- QRscore.test(samples = gene_vec, labels = labels, 
+                                        measure = "mean", gene.name = gene.name...)
       log2_mean_ratio <- log2(mean(y) / mean(x))
       mean_test_list[["QRscore_Mean_p_value"]] <- QRscore_test_mean
       mean_test_list[[paste0("Log_FC_Mean_", unique_labels[2], "_vs_", unique_labels[1])]] <- log2_mean_ratio
     }
     
     if (test_dispersion) {
-      QRscore_test_var <- QRscore.test(samples = gene_vec, labels = labels, measure = "dispersion", gene.name=gene.name,...)
+      QRscore_test_var <- QRscore.test(samples = gene_vec, labels = labels, 
+                                       measure = "dispersion", gene.name=gene.name,...)
       log2_var_ratio <- log2(var(y) / var(x))
       var_test_list[["QRscore_Var_p_value"]] <- QRscore_test_var
       var_test_list[[paste0("Log_FC_Var_", unique_labels[2], "_vs_", unique_labels[1])]] <- log2_var_ratio
@@ -106,11 +115,13 @@ QRscore_one_gene_test <- function(gene_list, labels, pairwise_test = TRUE, pairw
     
   } else if (length(unique_labels) > 2) {
     if (test_mean) {
-      QRscore_test_mean <- QRscore.test(samples = gene_vec, labels = labels, measure = "mean", gene.name=gene.name,...)
+      QRscore_test_mean <- QRscore.test(samples = gene_vec, labels = labels, 
+                                        measure = "mean", gene.name=gene.name,...)
       mean_test_list[["QRscore_Mean_p_value"]] <- QRscore_test_mean
     }
     if (test_dispersion) {
-      QRscore_test_var <- QRscore.test(samples = gene_vec, labels = labels, measure = "dispersion", gene.name=gene.name,...)
+      QRscore_test_var <- QRscore.test(samples = gene_vec, labels = labels, 
+                                       measure = "dispersion", gene.name=gene.name,...)
       var_test_list[["QRscore_Var_p_value"]] <- QRscore_test_var
     }
     
@@ -124,12 +135,18 @@ QRscore_one_gene_test <- function(gene_list, labels, pairwise_test = TRUE, pairw
           
           if (pairwise_test) {
             if (test_mean) {
-              QRscore_test_mean_pw <- QRscore.test(samples = c(x, y), labels = rep(unique_labels[c(i, j)], c(length(x), length(y))), measure = "mean", gene.name = gene.name,...)
+              QRscore_test_mean_pw <- QRscore.test(samples = c(x, y), 
+                                                   labels = rep(unique_labels[c(i, j)], c(length(x), length(y))), 
+                                                   measure = "mean", 
+                                                   gene.name = gene.name,...)
               mean_test_list[[paste0("Pairwise_Test_Mean_", label_combination)]] <- QRscore_test_mean_pw
             }
             
             if (test_dispersion) {
-              QRscore_test_var_pw <- QRscore.test(samples = c(x, y), labels = rep(unique_labels[c(i, j)], c(length(x), length(y))), measure = "dispersion", gene.name = gene.name, ...)
+              QRscore_test_var_pw <- QRscore.test(samples = c(x, y), 
+                                                  labels = rep(unique_labels[c(i, j)], c(length(x), length(y))), 
+                                                  measure = "dispersion", 
+                                                  gene.name = gene.name, ...)
               var_test_list[[paste0("Pairwise_Test_Var_", label_combination)]] <- QRscore_test_var_pw
             }
           }

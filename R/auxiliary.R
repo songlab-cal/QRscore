@@ -25,12 +25,12 @@ qzinbinom <- function(p, mu, theta, size, pi, lower.tail = TRUE, log.p = FALSE) 
 #' @param n Integer. Number of samples to generate.
 #' @param mu Numeric. Mean of the negative binomial distribution.
 #' @param theta Numeric. Dispersion parameter (size) of the negative binomial distribution.
-#' @param size Numeric. Alternative name for the dispersion parameter (used interchangeably with 'theta').
-#' @param pi Numeric. Zero-inflation probability; must be in the range [0, 1].
-#' @return A vector of random samples from a zero-inflated negative binomial distribution.
+#' @param size Numeric. Alternative name for the dispersion parameter (used interchangeably with `theta`).
+#' @param pi Numeric. Zero-inflation probability; must be in the range \eqn{[0,1]}.
+#' @return A vector of random samples from a Zero-Inflated Negative Binomial (ZINB) distribution.
 #' @export
 rzinbinom <- function(n, mu, theta, size, pi) {
-  if(any(pi < 0) | any(pi > 1))  warning("'pi' must be in [0, 1]")
+  if(any(pi < 0) | any(pi > 1)) warning("'pi' must be in [0, 1]")
   if(!missing(theta) & !missing(size)) stop("only 'theta' or 'size' may be specified")
   if(!missing(size)) theta <- size
   rval <- rnbinom(n, mu = mu, size = theta)
@@ -65,13 +65,14 @@ rzinbinom <- function(n, mu, theta, size, pi) {
 #' @param p Power exponent of test statistic
 #' @param wList Weight vector
 #' @param alternative Character string that should be one of "`two.sided`" (default), "`greater`" or "`less`"
-#' @param type If using resampling approximation, either an unbiased estimate of (`'unbiased'`, default),
-#' or valid, but biased estimate of, (`'valid'`) p-value (see Hemerik and Goeman, 2018), or both (`'both'`). Default is `'unbiased'`.
+#' @param type If using resampling approximation, either an unbiased estimate of ("`unbiased`", default),
+#' or valid, but biased estimate of, ("`valid`") p-value (see Hemerik and Goeman, 2018), or both ("`both`"). Default is "`unbiased`".
 #' @param resamp_number Number of compositions of \eqn{n} to draw (default is 5000)
 #' @return p-value (scalar)
 #' @examples
 #'
-#' getCompositionPValue(t = 0.5, n = 50, k = 11, p = 1, wList = (10:0)/10, alternative = "two.sided", type = "unbiased", resamp_number = 5000)
+#' getCompositionPValue(t = 0.5, n = 50, k = 11, p = 1, wList = (10:0)/10, 
+#'                      alternative = "two.sided", type = "unbiased", resamp_number = 5000)
 #'
 #' @export
 getCompositionPValue <- function(t, n, k, p, wList, alternative, type, resamp_number) {
@@ -143,18 +144,18 @@ getCompositionPValue <- function(t, n, k, p, wList, alternative, type, resamp_nu
 }
 
 
-#' Retrieve the indices of \eqn{x_i}s after merging x and y in ascending order.
+#' Retrieve indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.
 #'
 #' Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
 #' or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
-#' this function obtains the indices of \eqn{x_i}s after merging x and y in ascending order.
+#' this function obtains the indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.
 #'
 #' Dependencies: None
 #' @param x First sample
 #' @param y Second sample
-#' @param ties.break Whether to break the ties when ordering x and y. Default is `'TRUE'`.
+#' @param ties.break Whether to break the ties when ordering `x` and `y`. Default is `'TRUE'`.
 #' @param seed Random seed for tie breaking.
-#' @return Ranks of \eqn{x_i}s after merging x and y in ascending order
+#' @return Ranks of \eqn{x_i}'s after merging `x` and `y` in ascending order
 #' @examples
 #'
 #' rank_x (x = abs(rnorm(10)))
@@ -191,7 +192,7 @@ rank_x = function(x,
 
 #' Compute weights for mean shift analysis
 #'
-#' Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{beta}, \eqn{mu}, \eqn{pi}),
+#' Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{\beta}, \eqn{\mu}, \eqn{\pi}),
 #' the sample sizes \eqn{n} and \eqn{k} (by default \eqn{n\geqslant k}), this function computes weights that target changes in the 
 #' mean parameter of the zero-inflated negative binomial model.
 #'
@@ -204,7 +205,7 @@ rank_x = function(x,
 #' @param pi Probability of zeros due to zero inflation.
 #' @param n Sample size of \eqn{y}
 #' @param k Sample size of \eqn{x}
-#' @return A list containing a weight vector 'weight' and estimated variance 'var' useful for constructing test statistics.
+#' @return A list containing a weight vector (`$weight`) and estimated variance (`$var`) useful for constructing test statistics.
 #' @examples
 #'
 #' computeweight_mean(beta = 5, mu = 40, pi = 0.1, n = 100, k = 60)
@@ -227,7 +228,7 @@ computeweight_mean = function(beta,mu,pi, n,k){
   results$weight = sapply(Gdict,z_function) - mean(sapply(Gdict, z_function)) # weight vector is a dictionary for all possible ranks
   if (any(is.na(test_var)) || any(is.infinite(test_var)) || all(test_var == 0)) {
     results$var <- var(sapply(Gdict, z_function))
-    message(paste0("Using weight dictionary to calcualte variance."))
+    message(paste0("Using weight dictionary to calculate variance."))
   } else{
     results$var = test_var
   }
@@ -240,21 +241,21 @@ computeweight_mean = function(beta,mu,pi, n,k){
 
 #' Compute weights for dispersion shift analysis
 #'
-#' Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{beta}, \eqn{mu}, \eqn{pi}),
+#' Given the value of the estimated parameters for zero-inflated negative binomial distribution (\eqn{\beta}, \eqn{\mu}, \eqn{\pi}),
 #' the sample sizes \eqn{n} and \eqn{k} (by default \eqn{n\geqslant k}), this function computes weights that target on changes of the 
 #' dispersion parameter in zero-inflated negative binomial model.
 #' 
-#' The function returns a list containing a weight vector 'weight' and estimated variance 'var' for constructing test statistics.
+#' The function returns a list containing a weight vector and estimated variance for constructing test statistics.
 #'
 #' @param beta Target for number of successful trials, or dispersion parameter. Must be strictly positive.
 #' @param mu Non-negative mean of the uninflated negative binomial distribution.
 #' @param pi Zero inflation probability for structural zeros.
 #' @param n Sample size of \eqn{y}
 #' @param k Sample size of \eqn{x}
-#' @param tail Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^(-4)}
+#' @param tail Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^{-4}}
 #' @param bigN Sampling numbers for numerically calculate expectation, this will only be applied when mean parameter is extremely large. Default is \eqn{10^6}
 #' @param seed Random seed for sampling.
-#' @return A list containing a weight vector 'weight' and estimated variance 'var' useful for constructing test statistics.
+#' @return A list containing a weight vector (`$weight`) and estimated variance (`$var`) useful for constructing test statistics.
 #' @examples
 #'
 #' computeweight_disp(beta = 5, mu = 40, pi = 0.1, n = 100, k = 60, tail = 10 ^ (-4), bigN = 10 ^ 6)
@@ -301,8 +302,7 @@ computeweight_disp = function(beta,
   #   Gamma_expr = expression(log(gamma(theta*beta+x)/gamma(theta*beta)))
   #   eval(D(Gamma_expr, 'theta'))
   # }
-  # Simlified version of the derivative is shown below, which help to avoid large number issue.
-
+  # Simplified version of the derivative is shown below, which helps avoid numerical overflow issues.
   Gamma_derivative = function(theta, x) {
     x4 = gamma(theta * beta)
     x1 = beta  * digamma(theta * beta + x)
@@ -330,7 +330,7 @@ computeweight_disp = function(beta,
                           msg = "Weight cannot be calculated. Check if estimated dispersion parameter beta is less than 100.")
   if (any(is.na(test_var)) || any(is.infinite(test_var)) || all(test_var == 0)) {
     results$var <- var(sapply(Gdict, z_function))
-    message(paste0("Using weight dictionary to calcualte variance."))
+    message(paste0("Using weight dictionary to calculate variance."))
   } else{
     results$var = test_var
   }

@@ -19,8 +19,8 @@ getCompositionPValue(t, n, k, p, wList, alternative, type, resamp_number)
 
 \item{alternative}{Character string that should be one of "\code{two.sided}" (default), "\code{greater}" or "\code{less}"}
 
-\item{type}{If using resampling approximation, either an unbiased estimate of (\code{'unbiased'}, default),
-or valid, but biased estimate of, (\code{'valid'}) p-value (see Hemerik and Goeman, 2018), or both (\code{'both'}). Default is \code{'unbiased'}.}
+\item{type}{If using resampling approximation, either an unbiased estimate of ("\code{unbiased}", default),
+or valid, but biased estimate of, ("\code{valid}") p-value (see Hemerik and Goeman, 2018), or both ("\code{both}"). Default is "\code{unbiased}".}
 
 \item{resamp_number}{Number of compositions of \eqn{n} to draw (default is 5000)}
 }
@@ -49,6 +49,7 @@ Dependencies: arrangements::compositions
 }
 \examples{
 
-getCompositionPValue(t = 0.5, n = 50, k = 11, p = 1, wList = (10:0)/10, alternative = "two.sided", type = "unbiased", resamp_number = 5000)
+getCompositionPValue(t = 0.5, n = 50, k = 11, p = 1, wList = (10:0)/10, 
+                     alternative = "two.sided", type = "unbiased", resamp_number = 5000)
 
 }
