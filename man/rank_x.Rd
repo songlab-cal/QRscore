@@ -4,7 +4,7 @@
 \alias{rank_x}
 \title{Retrieve indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.}
 \usage{
-rank_x(x, y = NULL, ties.break = TRUE, seed = 1)
+rank_x(x, y = NULL, ties.break = TRUE, seed = NULL)
 }
 \arguments{
 \item{x}{First sample}
@@ -30,5 +30,6 @@ Dependencies: None
 
 rank_x (x = abs(rnorm(10)))
 rank_x (x = abs(rnorm(10)), y = abs(rnorm(100))) 
-rank_x (x = rnbinom(10, size = 5, prob = 0.3), y = rnbinom(20, size = 2, prob = 0.3), ties.break = TRUE)
+rank_x (x = rnbinom(10, size = 5, prob = 0.3), 
+        y = rnbinom(20, size = 2, prob = 0.3), ties.break = TRUE)
 }

@@ -8,8 +8,8 @@
 QRscore_ZINB_nSamples(
   samples,
   labels,
-  zero_inflation = T,
-  LR.test = F,
+  zero_inflation = TRUE,
+  LR.test = FALSE,
   approx = "resample",
   resamp_num = 20000,
   pi_threshold = 0.95,
@@ -71,7 +71,6 @@ and other auxiliary functions as needed.
 }
 \examples{
 
-set.seed(123)
 data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
           rnbinom(100, size = 2, mu = 30))
 labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))

@@ -59,6 +59,9 @@ QRscore.test(
 
 \item{seed}{Integer to set the seed for reproducibility in resampling methods.}
 }
+\value{
+Returns the p-value of the test.
+}
 \description{
 This function performs statistical tests on data from one or more groups using summary statistics
 computed on weighted linear combinations of powers of spacing statistics. It is capable of conducting
@@ -79,7 +82,6 @@ using score function for a Negative Binomial or a Zero-Inflated Negative Binomia
 }
 \examples{
 
-set.seed(1)
 # One-sample test example with normally distributed data
 data <- abs(rnorm(10))
 QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 

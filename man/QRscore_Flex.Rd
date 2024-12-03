@@ -38,6 +38,9 @@ or valid, but biased estimate of, ("\code{valid}") p-value (see Hemerik and Goem
 
 \item{resamp_number}{Number of \eqn{k}-compositions of \eqn{n} or simplex vectors in \eqn{[0,1]^k}  to draw}
 }
+\value{
+Returns the p-value.
+}
 \description{
 Given data consisting of either a single sample \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)},
 or two samples \eqn{\boldsymbol{x}=(x_1,\ldots,x_k)} and \eqn{\boldsymbol{y}=(y_1,\ldots,y_n)},
@@ -75,7 +78,6 @@ Dependencies: functions in \code{auxiliary.R}
 }
 \examples{
 
-set.seed(1)
 # One-sample examples
 QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
               alternative = "two.sided", approx = "resample")

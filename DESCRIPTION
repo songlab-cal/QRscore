@@ -1,6 +1,6 @@
 Package: QRscore
 Title: Quantile Rank Score
-Version: 0.1.0
+Version: 0.99.0
 Date: 2024-12-01
 Authors@R: c(
     person("Fanding", "Zhou", email = "zhoufd@berkeley.edu", role = c("cre","aut"),
@@ -25,10 +25,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 NeedsCompilation: no
 Packaged: 2023-07-10 07:50:30 UTC; fandingzhou
-Author: Fanding Zhou [cre,aut],
-  Alan Aw [aut] (<https://orcid.org/0000-0001-9455-7878>),
-  Dan Erdmann-Pham [aut],
-  Jonathan Fischer [aut] (<https://orcid.org/0000-0002-1165-9930>), 
-  Xurui Chen [ctb]
-Maintainer: Fanding Zhou <zhoufd@berkeley.edu>, Alan Aw <nalawanij@gmail.com>
 VignetteBuilder: knitr
+biocViews: StatisticalMethod, DifferentialExpression

@@ -33,8 +33,8 @@ rzinbinom <- function(n, mu, theta, size, pi) {
   if(any(pi < 0) | any(pi > 1)) warning("'pi' must be in [0, 1]")
   if(!missing(theta) & !missing(size)) stop("only 'theta' or 'size' may be specified")
   if(!missing(size)) theta <- size
-  rval <- rnbinom(n, mu = mu, size = theta)
-  rval[runif(n) < pi] <- 0
+  rval <- stats::rnbinom(n, mu = mu, size = theta)
+  rval[stats::runif(n) < pi] <- 0
   rval
 }
 
@@ -160,17 +160,18 @@ getCompositionPValue <- function(t, n, k, p, wList, alternative, type, resamp_nu
 #'
 #' rank_x (x = abs(rnorm(10)))
 #' rank_x (x = abs(rnorm(10)), y = abs(rnorm(100))) 
-#' rank_x (x = rnbinom(10, size = 5, prob = 0.3), y = rnbinom(20, size = 2, prob = 0.3), ties.break = TRUE)
+#' rank_x (x = rnbinom(10, size = 5, prob = 0.3), 
+#'         y = rnbinom(20, size = 2, prob = 0.3), ties.break = TRUE)
 #' @export
 #' 
 rank_x = function(x,
                   y = NULL,
                   ties.break = TRUE,
-                  seed = 1) {
+                  seed = NULL) {
   k = length(x)
   n = length(y)
   if (ties.break) {
-    set.seed(seed)
+    if (!is.null(seed)) {set.seed(seed)}
     # Calculate the differences between adjacent elements after merging the vector
     x_y_sorted = sort(c(x, y))
     differences <- diff(x_y_sorted)
@@ -269,7 +270,7 @@ computeweight_disp = function(beta,
                              k,
                              tail = 10 ^ (-4),
                              bigN = 10 ^ 6,
-                             seed = 1) {
+                             seed = NULL) {
   p = beta / (beta + mu)
   Gdict = qzinbinom((1:(n + k)) / (n + k+1),
                               size = beta,
@@ -277,7 +278,7 @@ computeweight_disp = function(beta,
                               pi = pi)
   if (mu > 10 ^ 4) {
     ## This is for extremely large mus to avoid large number issue
-    set.seed(seed)
+    if (!is.null(seed)) {set.seed(seed)}
     data = rzinbinom(bigN,
                                size = beta,
                                mu = mu,

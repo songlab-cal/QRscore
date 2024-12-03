@@ -12,7 +12,7 @@ This dataset contains a list with the following components
 }
 }
 \source{
-Generated for package documentation
+Raw counts from GTEx for package demonstration purposes.
 }
 \usage{
 example_dataset_raw_3000_genes

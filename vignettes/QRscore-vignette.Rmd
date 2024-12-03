@@ -16,12 +16,12 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
-if (!requireNamespace("DESeq2", quietly = TRUE)) {
-  BiocManager::install("DESeq2")
-}
-if (!requireNamespace("BiocParallel", quietly = TRUE)) {
-  BiocManager::install("BiocParallel")
-}
+# if (!requireNamespace("DESeq2", quietly = TRUE)) {
+#   BiocManager::install("DESeq2")
+# }
+# if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+#   BiocManager::install("BiocParallel")
+# }
 library(QRscore)
 library(DESeq2)
 library(BiocParallel)

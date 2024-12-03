@@ -4,7 +4,16 @@
 \alias{computeweight_disp}
 \title{Compute weights for dispersion shift analysis}
 \usage{
-computeweight_disp(beta, mu, pi, n, k, tail = 10^(-4), bigN = 10^6, seed = 1)
+computeweight_disp(
+  beta,
+  mu,
+  pi,
+  n,
+  k,
+  tail = 10^(-4),
+  bigN = 10^6,
+  seed = NULL
+)
 }
 \arguments{
 \item{beta}{Target for number of successful trials, or dispersion parameter. Must be strictly positive.}

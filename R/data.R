@@ -9,7 +9,7 @@
 #'   \item{example_data2}{A numeric matrix of normalized counts for age groups 20-39 and 60-79.}
 #'   \item{labels2}{A vector of sample labels for age groups 20-39 and 60-79.}
 #' }
-#' @source Generated for package documentation
+#' @source Normalized counts from GTEx for package demonstration purposes.
 #' @examples
 #' data(example_dataset)
 "example_dataset"
@@ -23,7 +23,7 @@
 #'   \item{COUNTS}{A numeric matrix of raw counts for 3000 genes.}
 #'   \item{METADATA}{The metadata for the corresponding raw counts.}
 #' }
-#' @source Generated for package documentation
+#' @source Raw counts from GTEx for package demonstration purposes.
 #' @examples
 #' data(example_dataset_raw_3000_genes)
 "example_dataset_raw_3000_genes"

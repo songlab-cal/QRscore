@@ -14,7 +14,7 @@ This dataset contains the following objects:
 }
 }
 \source{
-Generated for package documentation
+Normalized counts from GTEx for package demonstration purposes.
 }
 \usage{
 example_dataset

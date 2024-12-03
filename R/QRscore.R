@@ -44,10 +44,10 @@
 #' or valid, but biased estimate of, ("`valid`") p-value (see Hemerik and Goeman, 2018), or both ("`both`"). Default is "`unbiased`".
 #' @param n_mom The number of moments to accompany the approximation (recommended 200, if not at least 100)
 #' @param resamp_number Number of \eqn{k}-compositions of \eqn{n} or simplex vectors in \eqn{[0,1]^k}  to draw
+#' @return Returns the p-value.
 #' @export
 #' @examples
 #'
-#' set.seed(1)
 #' # One-sample examples
 #' QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
 #'               alternative = "two.sided", approx = "resample")
@@ -280,7 +280,7 @@ QRscore_Flex <- function(x, y = NULL,
 #' 
 QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = "resample",
                          alternative = "two.sided", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL,
-                         measure = "mean", p_value = TRUE, seed = 1) {
+                         measure = "mean", p_value = TRUE, seed = NULL) {
   
   if (sum(round(x) != x) > 0 | sum(round(y) != y) > 0) {
     warning("Input values are not integers. Automatically rounding the input.")
@@ -359,7 +359,7 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
     message(date(),
             ": Using resampling approach, with resampling number ",
             resamp_num,", to approximate p-value...")
-    set.seed(seed)
+    if (!is.null(seed)) {set.seed(seed)}
     zscore = mean(weights[rank_x(x, y)])
     null_zscore = c()
     for (num in 1:resamp_num) {
@@ -418,7 +418,6 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #' @export
 #' @examples
 #'
-#' set.seed(123)
 #' data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
 #'           rnbinom(100, size = 2, mu = 30))
 #' labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
@@ -436,7 +435,7 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #'                                  resamp_num = 2000, pi_threshold = 0.95, measure = "dispersion")
 #' @export
 #' 
-QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test = F, approx = "resample", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL, measure = "mean", perturb = TRUE, seed = 1) {
+QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE, LR.test = FALSE, approx = "resample", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL, measure = "mean", perturb = TRUE, seed = 1) {
   unique_labels <- unique(labels)
   n_groups <- length(unique_labels)
   sample_list <- lapply(unique_labels, function(l) samples[labels == l])
@@ -576,10 +575,10 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = T, LR.test =
 #' @param perturb Boolean to indicate if data should be perturbed slightly to prevent ties.
 #' @param use_base_r Boolean to decide whether to use base R functions for certain edge cases like Mann-Whitney tests.
 #' @param seed Integer to set the seed for reproducibility in resampling methods.
+#' @return Returns the p-value of the test. 
 #' @export
 #' @examples
 #'
-#' set.seed(1)
 #' # One-sample test example with normally distributed data
 #' data <- abs(rnorm(10))
 #' QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 
