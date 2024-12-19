@@ -2,3 +2,5 @@ inst/doc
 .Rproj.user
 QRscore.Rprojdata/.DS_Store
 R/.Rhistory
+.DS_Store
+.Rhistory
