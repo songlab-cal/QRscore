@@ -4,16 +4,7 @@
 \alias{computeweight_disp}
 \title{Compute weights for dispersion shift analysis}
 \usage{
-computeweight_disp(
-  beta,
-  mu,
-  pi,
-  n,
-  k,
-  tail = 10^(-4),
-  bigN = 10^6,
-  seed = NULL
-)
+computeweight_disp(beta, mu, pi, n, k, tail = 10^(-4), bigN = 10^6)
 }
 \arguments{
 \item{beta}{Target for number of successful trials, or dispersion parameter. Must be strictly positive.}
@@ -29,8 +20,6 @@ computeweight_disp(
 \item{tail}{Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^{-4}}}
 
 \item{bigN}{Sampling numbers for numerically calculate expectation, this will only be applied when mean parameter is extremely large. Default is \eqn{10^6}}
-
-\item{seed}{Random seed for sampling.}
 }
 \value{
 A list containing a weight vector (\verb{$weight}) and estimated variance (\verb{$var}) useful for constructing test statistics.
@@ -45,6 +34,7 @@ The function returns a list containing a weight vector and estimated variance fo
 }
 \examples{
 
+set.seed(1)
 computeweight_disp(beta = 5, mu = 40, pi = 0.1, n = 100, k = 60, tail = 10 ^ (-4), bigN = 10 ^ 6)
 
 }

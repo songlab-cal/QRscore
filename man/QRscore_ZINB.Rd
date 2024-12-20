@@ -16,8 +16,7 @@ QRscore_ZINB(
   pi_threshold = 0.95,
   gene.name = NULL,
   measure = "mean",
-  p_value = TRUE,
-  seed = NULL
+  p_value = TRUE
 )
 }
 \arguments{
@@ -42,8 +41,6 @@ QRscore_ZINB(
 \item{measure}{Specifies whether to test for shifts in "\code{mean}" or "\code{dispersion}".}
 
 \item{p_value}{If TRUE, returns a p-value, else returns test statistics and weights.}
-
-\item{seed}{Random seed for sampling, ensures reproducibility in resampling methods.}
 }
 \value{
 p-value or test statistics depending on \code{p_value} parameter
@@ -67,6 +64,7 @@ Dependencies: pscl::zeroinfl, MASS::glm.nb, and auxiliary functions from \code{a
 }
 \examples{
 
+set.seed(1)
 # Two-sample example comparing mean shifts
 QRscore_ZINB(x = rzinbinom(100, size = 2, mu = 20, pi = 0),
            y = rzinbinom(100, size = 2, mu = 30, pi = 0), 

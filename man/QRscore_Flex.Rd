@@ -78,6 +78,7 @@ Dependencies: functions in \code{auxiliary.R}
 }
 \examples{
 
+set.seed(1)
 # One-sample examples
 QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
               alternative = "two.sided", approx = "resample")

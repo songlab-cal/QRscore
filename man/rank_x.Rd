@@ -4,7 +4,7 @@
 \alias{rank_x}
 \title{Retrieve indices of \eqn{x_i}'s after merging \eqn{\boldsymbol{x}} and \eqn{\boldsymbol{y}} in ascending order.}
 \usage{
-rank_x(x, y = NULL, ties.break = TRUE, seed = NULL)
+rank_x(x, y = NULL, ties.break = TRUE)
 }
 \arguments{
 \item{x}{First sample}
@@ -12,8 +12,6 @@ rank_x(x, y = NULL, ties.break = TRUE, seed = NULL)
 \item{y}{Second sample}
 
 \item{ties.break}{Whether to break the ties when ordering \code{x} and \code{y}. Default is \code{'TRUE'}.}
-
-\item{seed}{Random seed for tie breaking.}
 }
 \value{
 Ranks of \eqn{x_i}'s after merging \code{x} and \code{y} in ascending order
@@ -28,6 +26,7 @@ Dependencies: None
 }
 \examples{
 
+set.seed(1)
 rank_x (x = abs(rnorm(10)))
 rank_x (x = abs(rnorm(10)), y = abs(rnorm(100))) 
 rank_x (x = rnbinom(10, size = 5, prob = 0.3), 

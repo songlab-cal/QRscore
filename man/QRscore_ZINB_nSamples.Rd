@@ -15,8 +15,7 @@ QRscore_ZINB_nSamples(
   pi_threshold = 0.95,
   gene.name = NULL,
   measure = "mean",
-  perturb = TRUE,
-  seed = 1
+  perturb = TRUE
 )
 }
 \arguments{
@@ -39,8 +38,6 @@ QRscore_ZINB_nSamples(
 \item{measure}{Specifies whether the test focuses on "\code{mean}" or "\code{dispersion}" differences.}
 
 \item{perturb}{Boolean, if TRUE, adds small noise to data to avoid ties and improve model stability.}
-
-\item{seed}{Seed for random number generation, ensuring reproducibility.}
 }
 \value{
 Returns the p-value of the test if \code{p_value} is TRUE, otherwise returns test statistics and weights.
@@ -71,6 +68,7 @@ and other auxiliary functions as needed.
 }
 \examples{
 
+set.seed(1)
 data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
           rnbinom(100, size = 2, mu = 30))
 labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))

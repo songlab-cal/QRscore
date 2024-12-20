@@ -14,6 +14,7 @@ QRscore.genetest(
   num_cores = 1,
   silent = TRUE,
   rank = TRUE,
+  seed = 1,
   ...
 )
 }
@@ -36,6 +37,8 @@ QRscore.genetest(
 
 \item{rank}{Logical. If TRUE, returns a ranked list of DEGs or DDGs sorted by p-values.}
 
+\item{seed}{Integer. Set seed in parallel computing.}
+
 \item{...}{Additional arguments passed to the \code{QRscore.test} function.}
 }
 \value{
@@ -47,15 +50,15 @@ This function performs differential expression analysis using the QRscore method
 \examples{
 data(example_dataset)
 results <- QRscore.genetest(example_dataset$example_data1, example_dataset$labels1, 
-                               pairwise_test = TRUE, pairwise_logFC = TRUE, 
+                               pairwise_test = FALSE, pairwise_logFC = TRUE, 
                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
                                approx = "asymptotic")
                              
-head(results$mean_test)
+head(results$var_test)
 
 results2 <- QRscore.genetest(example_dataset$example_data2, example_dataset$labels2, 
                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-                               test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
+                               test_mean = TRUE, test_dispersion = FALSE, num_cores = 2,
                                approx = "asymptotic")
-head(results2$var_test)
+head(results2$mean_test)
 }

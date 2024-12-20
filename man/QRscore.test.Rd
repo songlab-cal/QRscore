@@ -20,8 +20,7 @@ QRscore.test(
   gene.name = NULL,
   measure = "mean",
   perturb = TRUE,
-  use_base_r = TRUE,
-  seed = 1
+  use_base_r = TRUE
 )
 }
 \arguments{
@@ -56,8 +55,6 @@ QRscore.test(
 \item{perturb}{Boolean to indicate if data should be perturbed slightly to prevent ties.}
 
 \item{use_base_r}{Boolean to decide whether to use base R functions for certain edge cases like Mann-Whitney tests.}
-
-\item{seed}{Integer to set the seed for reproducibility in resampling methods.}
 }
 \value{
 Returns the p-value of the test.
@@ -82,6 +79,7 @@ using score function for a Negative Binomial or a Zero-Inflated Negative Binomia
 }
 \examples{
 
+set.seed(1)
 # One-sample test example with normally distributed data
 data <- abs(rnorm(10))
 QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 
