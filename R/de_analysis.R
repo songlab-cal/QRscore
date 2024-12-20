@@ -19,12 +19,17 @@
 #' @examples
 #' data(example_dataset)
 #' results <- QRscore.genetest(example_dataset$example_data1, example_dataset$labels1, 
-#'                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
+#'                                pairwise_test = FALSE, pairwise_logFC = TRUE, 
 #'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
 #'                                approx = "asymptotic")
 #'                              
-#' head(results$mean_test)
+#' head(results$var_test)
 #'
+#' results2 <- QRscore.genetest(example_dataset$example_data2, example_dataset$labels2, 
+#'                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
+#'                                test_mean = TRUE, test_dispersion = FALSE, num_cores = 2,
+#'                                approx = "asymptotic")
+#' head(results2$mean_test)
 QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, 
                              pairwise_logFC = FALSE, test_mean = TRUE, 
                              test_dispersion = FALSE, num_cores = 1, 
@@ -51,7 +56,6 @@ QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE,
       combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, 
       pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...)
   }
-
   # Extract and combine the results into two data frames
   mean_test_results <- do.call(rbind, lapply(results_list, function(x) x$mean_test))
   var_test_results <- do.call(rbind, lapply(results_list, function(x) x$var_test))
