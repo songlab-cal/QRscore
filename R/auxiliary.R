@@ -154,10 +154,10 @@ getCompositionPValue <- function(t, n, k, p, wList, alternative, type, resamp_nu
 #' @param x First sample
 #' @param y Second sample
 #' @param ties.break Whether to break the ties when ordering `x` and `y`. Default is `'TRUE'`.
-#' @param seed Random seed for tie breaking.
 #' @return Ranks of \eqn{x_i}'s after merging `x` and `y` in ascending order
 #' @examples
-#'
+#' 
+#' set.seed(1)
 #' rank_x (x = abs(rnorm(10)))
 #' rank_x (x = abs(rnorm(10)), y = abs(rnorm(100))) 
 #' rank_x (x = rnbinom(10, size = 5, prob = 0.3), 
@@ -166,12 +166,10 @@ getCompositionPValue <- function(t, n, k, p, wList, alternative, type, resamp_nu
 #' 
 rank_x = function(x,
                   y = NULL,
-                  ties.break = TRUE,
-                  seed = NULL) {
+                  ties.break = TRUE) {
   k = length(x)
   n = length(y)
   if (ties.break) {
-    if (!is.null(seed)) {set.seed(seed)}
     # Calculate the differences between adjacent elements after merging the vector
     x_y_sorted = sort(c(x, y))
     differences <- diff(x_y_sorted)
@@ -255,10 +253,10 @@ computeweight_mean = function(beta,mu,pi, n,k){
 #' @param k Sample size of \eqn{x}
 #' @param tail Distribution tail trimmed for numerically calculate expectation. Default is \eqn{10^{-4}}
 #' @param bigN Sampling numbers for numerically calculate expectation, this will only be applied when mean parameter is extremely large. Default is \eqn{10^6}
-#' @param seed Random seed for sampling.
 #' @return A list containing a weight vector (`$weight`) and estimated variance (`$var`) useful for constructing test statistics.
 #' @examples
-#'
+#' 
+#' set.seed(1)
 #' computeweight_disp(beta = 5, mu = 40, pi = 0.1, n = 100, k = 60, tail = 10 ^ (-4), bigN = 10 ^ 6)
 #'
 #' @export
@@ -269,8 +267,7 @@ computeweight_disp = function(beta,
                              n,
                              k,
                              tail = 10 ^ (-4),
-                             bigN = 10 ^ 6,
-                             seed = NULL) {
+                             bigN = 10 ^ 6) {
   p = beta / (beta + mu)
   Gdict = qzinbinom((1:(n + k)) / (n + k+1),
                               size = beta,
@@ -278,7 +275,6 @@ computeweight_disp = function(beta,
                               pi = pi)
   if (mu > 10 ^ 4) {
     ## This is for extremely large mus to avoid large number issue
-    if (!is.null(seed)) {set.seed(seed)}
     data = rzinbinom(bigN,
                                size = beta,
                                mu = mu,

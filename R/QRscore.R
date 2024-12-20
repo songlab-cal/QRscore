@@ -47,7 +47,8 @@
 #' @return Returns the p-value.
 #' @export
 #' @examples
-#'
+#' 
+#' set.seed(1)
 #' # One-sample examples
 #' QRscore_Flex(x = abs(rnorm(10)), p = 2, wList = rep(1,10), 
 #'               alternative = "two.sided", approx = "resample")
@@ -253,11 +254,11 @@ QRscore_Flex <- function(x, y = NULL,
 #' @param gene.name Optional, name of the gene if applicable, used for customized messages.
 #' @param measure Specifies whether to test for shifts in "`mean`" or "`dispersion`".
 #' @param p_value If TRUE, returns a p-value, else returns test statistics and weights.
-#' @param seed Random seed for sampling, ensures reproducibility in resampling methods.
 #' @return p-value or test statistics depending on `p_value` parameter
 #' @export
 #' @examples
-#'
+#' 
+#' set.seed(1)
 #' # Two-sample example comparing mean shifts
 #' QRscore_ZINB(x = rzinbinom(100, size = 2, mu = 20, pi = 0),
 #'            y = rzinbinom(100, size = 2, mu = 30, pi = 0), 
@@ -280,7 +281,7 @@ QRscore_Flex <- function(x, y = NULL,
 #' 
 QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = "resample",
                          alternative = "two.sided", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL,
-                         measure = "mean", p_value = TRUE, seed = NULL) {
+                         measure = "mean", p_value = TRUE) {
   
   if (sum(round(x) != x) > 0 | sum(round(y) != y) > 0) {
     warning("Input values are not integers. Automatically rounding the input.")
@@ -359,7 +360,6 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
     message(date(),
             ": Using resampling approach, with resampling number ",
             resamp_num,", to approximate p-value...")
-    if (!is.null(seed)) {set.seed(seed)}
     zscore = mean(weights[rank_x(x, y)])
     null_zscore = c()
     for (num in 1:resamp_num) {
@@ -413,11 +413,11 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #' @param gene.name Optional, name of the gene if applicable, enhancing the relevance of output in genetic studies.
 #' @param measure Specifies whether the test focuses on "`mean`" or "`dispersion`" differences.
 #' @param perturb Boolean, if TRUE, adds small noise to data to avoid ties and improve model stability.
-#' @param seed Seed for random number generation, ensuring reproducibility.
 #' @return Returns the p-value of the test if `p_value` is TRUE, otherwise returns test statistics and weights.
 #' @export
 #' @examples
 #'
+#' set.seed(1)
 #' data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
 #'           rnbinom(100, size = 2, mu = 30))
 #' labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
@@ -435,7 +435,7 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE, approx = 
 #'                                  resamp_num = 2000, pi_threshold = 0.95, measure = "dispersion")
 #' @export
 #' 
-QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE, LR.test = FALSE, approx = "resample", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL, measure = "mean", perturb = TRUE, seed = 1) {
+QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE, LR.test = FALSE, approx = "resample", resamp_num = 20000, pi_threshold = 0.95, gene.name = NULL, measure = "mean", perturb = TRUE) {
   unique_labels <- unique(labels)
   n_groups <- length(unique_labels)
   sample_list <- lapply(unique_labels, function(l) samples[labels == l])
@@ -477,7 +477,7 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE, LR.tes
   y = unlist(sample_list[-1], use.names = FALSE)
   results = QRscore_ZINB(x,y,zero_inflation = zero_inflation,LR.test = LR.test, 
                          approx = approx, resamp_num = resamp_num, pi_threshold = pi_threshold, 
-                         gene.name = gene.name,measure = measure,p_value = FALSE,seed = seed)
+                         gene.name = gene.name,measure = measure,p_value = FALSE)
   if(!is.list(results)){
     return(NA)
   }
@@ -574,11 +574,11 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE, LR.tes
 #' @param measure Specifies the statistical measure to be analyzed ("`mean`" or "`dispersion`") when weights are auto-generated.
 #' @param perturb Boolean to indicate if data should be perturbed slightly to prevent ties.
 #' @param use_base_r Boolean to decide whether to use base R functions for certain edge cases like Mann-Whitney tests.
-#' @param seed Integer to set the seed for reproducibility in resampling methods.
 #' @return Returns the p-value of the test. 
 #' @export
 #' @examples
 #'
+#' set.seed(1)
 #' # One-sample test example with normally distributed data
 #' data <- abs(rnorm(10))
 #' QRscore.test(data, p = 2, wList = rep(1,10), alternative = "two.sided", 
@@ -624,7 +624,7 @@ QRscore.test <- function(samples, labels = NULL,
                          n_mom = 100, resamp_number = 5000,
                          zero_inflation = TRUE, LR.test = FALSE, pi_threshold = 0.95,
                          gene.name = NULL, measure = "mean", perturb = TRUE,
-                         use_base_r = TRUE, seed = 1) {
+                         use_base_r = TRUE) {
   
   assertthat::assert_that(!is.null(samples), msg = "Samples cannot be NULL.")
   assertthat::assert_that((alternative == "two.sided" | alternative == "greater" | alternative == "less"),
@@ -672,7 +672,7 @@ QRscore.test <- function(samples, labels = NULL,
       message(date(), ": Use ZINB or NB model to estimate the weights since p and wList are not specified.")
       assertthat::assert_that(all(samples >= 0), msg = "Samples must not contain negative values.")
       return(QRscore_ZINB(x, y, zero_inflation, LR.test, approx, alternative, resamp_number,
-                          pi_threshold, gene.name, measure, seed))
+                          pi_threshold, gene.name, measure))
       
       
     } else{
@@ -694,6 +694,6 @@ QRscore.test <- function(samples, labels = NULL,
     message(date(), ": Performing a multi-sample test.")
     message(date(), ": Use ZINB or NB model to estimate the weights.")
     return(QRscore_ZINB_nSamples(samples, labels, zero_inflation, LR.test, approx,
-                                 resamp_number, pi_threshold, gene.name, measure, perturb, seed))
+                                 resamp_number, pi_threshold, gene.name, measure, perturb))
   }
 }

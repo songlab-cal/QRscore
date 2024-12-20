@@ -11,6 +11,7 @@
 #' @param num_cores Integer, number of cores to use for parallel processing.
 #' @param silent Logical, whether to suppress all messages except warnings and errors.
 #' @param rank Logical. If TRUE, returns a ranked list of DEGs or DDGs sorted by p-values.
+#' @param seed Integer. Set seed in parallel computing.
 #' @param ... Additional arguments passed to the `QRscore.test` function.
 #' @return A list with two data frames: `mean_test` and `var_test`. 
 #' @export
@@ -32,11 +33,11 @@
 QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, 
                              pairwise_logFC = FALSE, test_mean = TRUE, 
                              test_dispersion = FALSE, num_cores = 1, 
-                             silent = TRUE, rank = TRUE, ...) {
+                             silent = TRUE, rank = TRUE, seed = 1,...) {
   if (num_cores > 1 && BiocParallel::multicoreWorkers() > 1) {
-    bpparam <- BiocParallel::MulticoreParam(workers = num_cores)
+    bpparam <- BiocParallel::MulticoreParam(workers = num_cores, RNGseed = seed) 
   } else {
-    bpparam <- BiocParallel::SerialParam()
+    bpparam <- BiocParallel::SerialParam(RNGseed = seed) 
   }
   
   adjusted_counts <- normalized_matrix
@@ -55,7 +56,7 @@ QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE,
       combined_list, QRscore_one_gene_test, labels = labels, pairwise_test = pairwise_test, 
       pairwise_logFC = pairwise_logFC, test_mean = test_mean, test_dispersion = test_dispersion, BPPARAM = bpparam, ...)
   }
-  
+
   # Extract and combine the results into two data frames
   mean_test_results <- do.call(rbind, lapply(results_list, function(x) x$mean_test))
   var_test_results <- do.call(rbind, lapply(results_list, function(x) x$var_test))
