@@ -151,16 +151,7 @@ head(results_2_sample_DDG)
 
 ## Three-Sample Test
 
-### Run QRscore for Variance Shifts
-
-This example focuses on detecting DDGs across all age groups.
-
-```{r}
-results_3_sample <- QRscore.genetest(normalized_mat, coldata$age, pairwise_test = FALSE, pairwise_logFC = FALSE, test_mean = FALSE, test_dispersion = TRUE, num_cores = 2, approx = "asymptotic")
-head(results_3_sample$var_test)                             
-```
-
-### Full Results
+This example compares the 20-39, 40-59, and 60-79 age groups.
 
 The comprehensive output includes 3-sample test p-values as well as pairwise test p-values and fold changes. 
 

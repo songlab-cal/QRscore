@@ -25,11 +25,6 @@
 #'                              
 #' head(results$mean_test)
 #'
-#' results2 <- QRscore.genetest(example_dataset$example_data2, example_dataset$labels2, 
-#'                                pairwise_test = TRUE, pairwise_logFC = TRUE, 
-#'                                test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
-#'                                approx = "asymptotic")
-#' head(results2$var_test)
 QRscore.genetest <- function(normalized_matrix, labels, pairwise_test = FALSE, 
                              pairwise_logFC = FALSE, test_mean = TRUE, 
                              test_dispersion = FALSE, num_cores = 1, 
