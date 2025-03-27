@@ -18,7 +18,8 @@ Raw counts from GTEx for package demonstration purposes.
 example_dataset_raw_3000_genes
 }
 \description{
-This dataset contains raw gene expression counts from 3000 genes in GTEx whole blood tissue for demonstration purposes.
+This dataset contains raw gene expression counts from 3000 genes in GTEx
+whole blood tissue for demonstration purposes.
 }
 \examples{
 data(example_dataset_raw_3000_genes)

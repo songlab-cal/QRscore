@@ -1,0 +1,267 @@
+---
+title: "Quantile Rank Score (QRscore): Quick Start"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{QRscore}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# QRscore: A Non-Parametric Approach to Differential Analysis in Genomics
+
+## Introduction
+
+Differential expression (DE) analysis, aiming to identify genes with significant 
+expression changes across conditions, provides insights into molecular 
+mechanisms underlying aging, disease, and other biological processes. 
+Traditional DE methods primarily detect changes in centrality (e.g., mean or 
+median), but often lack power against alternative hypotheses characterized by 
+changes in spread (e.g. variance or dispersion). Variance shifts, however, are 
+critical in understanding regulatory dynamics and stochasticity in gene 
+expression, particularly in contexts like aging and cellular differentiation. 
+Moreover, in DE analysis, there is often a trade-off between statistical power 
+and control over the false discovery rate (FDR): parametric approaches may 
+inflate FDRs, while nonparametric methods frequently lack sufficient power.
+
+The `QRscore` package addresses these two limitations by providing a robust 
+framework for two-sample and K-sample tests that detect shifts in both 
+centrality and spread. Built upon rigorous theoretical foundations,`QRscore` 
+extends the Mann-Whitney test to an adaptive, rank-based approach that combines 
+non-parametric tests with weights informed by (zero-inflated) negative binomial 
+models, ensuring both high power and strictly controlled FDR. 
+
+This package is designed to complement existing tools in Bioconductor by 
+offering enhanced capabilities for detecting distributional shifts. By 
+integrating with widely-used Bioconductor packages such as `DESeq2` and 
+leveraging parallelization (`BiocParallel`), `QRscore` seamlessly integrates 
+into genomics workflows for differential expression and differential dispersion 
+analysis. This vignette demonstrates the utility of `QRscore` through a detailed 
+example.
+
+## Installation
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    warning = FALSE,
+    message = FALSE
+)
+```
+
+Check dependencies are installed.
+
+```{r eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+if (!requireNamespace("DESeq2", quietly = TRUE)) {
+    BiocManager::install("DESeq2")
+}
+if (!requireNamespace("BiocParallel", quietly = TRUE)) {
+    BiocManager::install("BiocParallel")
+}
+```
+
+You can install the QRscore package from 
+[Bioconductor](https://bioconductor.org) with the following command:
+
+```{r eval = FALSE}
+if (!requireNamespace("QRscore", quietly = TRUE)) {
+    BiocManager::install("QRscore")
+}
+```
+
+
+Alternatively, you can install the QRscore package from github:
+
+```{r eval = FALSE}
+if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")
+}
+devtools::install_github("Fanding-Zhou/QRscore")
+```
+
+## Overview
+
+This vignette illustrates how to:
+
+1. Preprocess and normalize bulk RNA-seq data.
+
+2. Perform two-sample and three-sample differential tests using `QRscore`.
+
+3. Obtain results for DEGs and DDGs.
+
+
+## Setup
+
+### Package installation and Loading
+
+
+
+```{r}
+library(QRscore)
+library(DESeq2)
+library(BiocParallel)
+```
+
+
+## Data Preparation
+
+### Load the data
+
+The example dataset contains 3000 randomly selected genes in RNA-seq counts 
+data from whole blood samples in the GTEx project, along with associated 
+metadata for age groups.
+
+```{r}
+data("example_dataset_raw_3000_genes")
+```
+
+### Define Age Groups
+
+Age groups are aggregated for larger sample size and simplified analysis.
+
+```{r}
+bulk_sparse_mat <- example_dataset_raw_3000_genes$COUNTS
+ages <- example_dataset_raw_3000_genes$METADATA$AGE
+ages[ages %in% c("20-29", "30-39")] <- "20-39"
+ages[ages %in% c("40-49", "50-59")] <- "40-59"
+ages[ages %in% c("60-69", "70-79")] <- "60-79"
+```
+
+## Data Prefiltering and Normalization
+
+* Genes with low expression or high dropout rates are excluded.
+
+* The `DESeq2` package is used to normalize the filtered gene expression matrix.
+
+```{r message=FALSE, warning=FALSE}
+col_means <- colMeans(bulk_sparse_mat, na.rm = TRUE)
+col_zeros <- colMeans(bulk_sparse_mat == 0, na.rm = TRUE)
+# The following threshold can be modified
+col_ids <- which(col_means > 5 & col_zeros < 0.2)
+
+bulk_df <- bulk_sparse_mat[, col_ids]
+bulk_df_inv <- t(bulk_df)
+coldata <- data.frame(age = ages)
+dds <- DESeqDataSetFromMatrix(
+    countData = bulk_df_inv,
+    colData = coldata,
+    design = ~age
+)
+dds <- estimateSizeFactors(dds)
+normalized_mat <- counts(dds, normalized = TRUE)
+```
+
+```{r}
+print("Number of kept genes after prefiltering:")
+print(length(col_ids))
+```
+
+## Two-sample test 
+
+### Define Age Groups for Testing
+
+This example compares the 20-39 and 60-79 age groups.
+
+```{r}
+## define age groups and subset dataset
+kept_samples <- coldata$age %in% c("20-39", "60-79")
+normalized_mat_1 <- normalized_mat[, kept_samples]
+coldata_1 <- coldata[kept_samples, ]
+```
+
+### Run QRscore Test
+
+Both mean and dispersion shifts are tested in parallel. The outputs includes 
+ranked p-values of differential variance and differential mean tests for 
+all genes, together with log ratio of mean shifts and variance shifts.
+
+```{r}
+results_2_sample <- QRscoreGenetest(normalized_mat_1,
+    coldata_1,
+    pairwise_test = TRUE,
+    pairwise_logFC = TRUE, test_mean = TRUE,
+    test_dispersion = TRUE, num_cores = 2,
+    approx = "asymptotic"
+)
+```
+
+
+### Differentially Expressed Genes (DEGs)
+
+Genes with significant mean shifts are identified.
+
+```{r}
+results_2_sample_mean <- results_2_sample$mean_test
+results_2_sample_DEG <-
+    results_2_sample_mean[
+      results_2_sample_mean$QRscore_Mean_adj_p_value < 0.05, ]
+head(results_2_sample_DEG)
+```
+
+
+### Differentially Dispersed Genes (DDGs)
+
+Genes with significant variance shifts are identified.
+
+```{r}
+results_2_sample_var <- results_2_sample$var_test
+results_2_sample_DDG <-
+    results_2_sample_var[results_2_sample_var$QRscore_Var_adj_p_value < 0.05, ]
+head(results_2_sample_DDG)
+```
+
+
+
+## Three-Sample Test
+
+This example compares the 20-39, 40-59, and 60-79 age groups. 
+
+The output includes 3-sample test p-values as well as pairwise fold changes.
+To get a more comprehensive result, one can set `pairwise_test = TRUE` to 
+additionally obtain the pairwise test p-values.
+
+
+```{r}
+results_3_sample <- QRscoreGenetest(normalized_mat, coldata$age,
+    pairwise_test = FALSE,
+    pairwise_logFC = TRUE, test_mean = TRUE,
+    test_dispersion = TRUE, num_cores = 2,
+    approx = "asymptotic"
+)
+```
+
+For detecting DDGs and DEGs, it's recommended to use 3-sample test p-values 
+(namely `QRscore_Mean_adj_p_value` and `QRscore_Var_adj_p_value`) with certain 
+cutoffs (e.g. 0.05).
+
+
+```{r}
+### DEGs
+results_3_sample_mean <- results_3_sample$mean_test
+results_3_sample_DEG <-results_3_sample_mean[
+  results_3_sample_mean$QRscore_Mean_adj_p_value < 0.05, ]
+head(results_3_sample_DEG)
+```
+
+```{r}
+### DDGs
+results_3_sample_var <- results_3_sample$var_test
+results_3_sample_DDG <-
+    results_3_sample_var[results_3_sample_var$QRscore_Var_adj_p_value < 0.05, ]
+head(results_3_sample_DDG)
+```
+
+## Session Info
+```{r}
+sessionInfo()
+```

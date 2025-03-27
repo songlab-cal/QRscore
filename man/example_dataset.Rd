@@ -7,9 +7,11 @@
 \format{
 This dataset contains the following objects:
 \describe{
-\item{example_data1}{A numeric matrix of normalized counts for all age groups.}
+\item{example_data1}{A numeric matrix of normalized counts for all age
+groups.}
 \item{labels1}{A vector of sample labels for all age groups.}
-\item{example_data2}{A numeric matrix of normalized counts for age groups 20-39 and 60-79.}
+\item{example_data2}{A numeric matrix of normalized counts for age groups
+20-39 and 60-79.}
 \item{labels2}{A vector of sample labels for age groups 20-39 and 60-79.}
 }
 }
@@ -20,7 +22,9 @@ Normalized counts from GTEx for package demonstration purposes.
 example_dataset
 }
 \description{
-This dataset contains a subset of rounded normalized gene expression counts from GTEx whole blood tissue and associated labels for demonstration purposes.
+This dataset contains a subset of rounded normalized gene expression counts
+from GTEx whole blood tissue and associated labels for demonstration
+purposes.
 }
 \examples{
 data(example_dataset)

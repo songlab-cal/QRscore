@@ -23,65 +23,90 @@ QRscore_ZINB_nSamples(
 
 \item{labels}{Group labels for each sample.}
 
-\item{zero_inflation}{Boolean, if TRUE, the function chooses between ZINB and NB models based on data; if FALSE, only NB model is applied.}
+\item{zero_inflation}{Boolean, if TRUE, the function chooses between ZINB and
+NB models based on data; if FALSE, only NB model is applied.}
 
-\item{LR.test}{Boolean, if TRUE, performs a likelihood ratio test to select between NB and ZINB models.}
+\item{LR.test}{Boolean, if TRUE, performs a likelihood ratio test to select
+between NB and ZINB models.}
 
-\item{approx}{The method used for p-value approximation; "\code{resample}" (default) or "\code{asymptotic}".}
+\item{approx}{The method used for p-value approximation; "resample"
+(default) or "asymptotic".}
 
-\item{resamp_num}{The number of resampling iterations used if \code{approx} is "\code{resample}".}
+\item{resamp_num}{The number of resampling iterations used if \code{approx} is
+"resample".}
 
-\item{pi_threshold}{Threshold for proportion of zeros at which to return NA, indicating unreliable results due to excessive zero inflation.}
+\item{pi_threshold}{Threshold for proportion of zeros at which to return NA,
+indicating unreliable results due to excessive zero inflation.}
 
-\item{gene.name}{Optional, name of the gene if applicable, enhancing the relevance of output in genetic studies.}
+\item{gene.name}{Optional, name of the gene if applicable, enhancing the
+relevance of output in genetic studies.}
 
-\item{measure}{Specifies whether the test focuses on "\code{mean}" or "\code{dispersion}" differences.}
+\item{measure}{Specifies whether the test focuses on "mean" or "dispersion"
+differences.}
 
-\item{perturb}{Boolean, if TRUE, adds small noise to data to avoid ties and improve model stability.}
+\item{perturb}{Boolean, if TRUE, adds small noise to data to avoid ties and
+improve model stability.}
 }
 \value{
-Returns the p-value of the test if \code{p_value} is TRUE, otherwise returns test statistics and weights.
+Returns the p-value of the test if \code{p_value} is TRUE, otherwise
+returns test statistics and weights.
 }
 \description{
-This function conducts statistical tests across multiple samples to evaluate the null hypothesis
-that all groups are drawn from the same distribution. It is optimized for data modeled by
-Negative Binomial (NB) or Zero-Inflated Negative Binomial (ZINB) distributions and is capable
-of detecting shifts in mean or dispersion parameters. The function can handle any number of groups
-and automatically computes optimal weights for the specified measure (mean or dispersion).
+This function conducts statistical tests across multiple samples to evaluate
+the null hypothesis that all groups are drawn from the same distribution. It
+is optimized for data modeled by Negative Binomial (NB) or Zero-Inflated
+Negative Binomial (ZINB) distributions and is capable of detecting shifts in
+mean or dispersion parameters. The function can handle any number of groups
+and automatically computes optimal weights for the specified measure (mean or
+dispersion).
 }
 \details{
-The computation involves constructing a B matrix that transforms group-specific scores into
-a space where independence among groups is maximized. It then uses these transformed scores
-to calculate a test statistic, which follows a chi-square distribution under the null hypothesis.
+The computation involves constructing a B matrix that transforms
+group-specific scores into a space where independence among groups is
+maximized. It then uses these transformed scores to calculate a test
+statistic, which follows a chi-square distribution under the null
+hypothesis.
 
-Additional tuning parameters allow customization of the model fitting and statistical testing,
-including:
+Additional tuning parameters allow customization of the model fitting and
+statistical testing, including:
 \itemize{
 \item Selection between NB and ZINB models based on presence of zero inflation.
-\item Choice of approximation method for computing p-values - 'asymptotic' is recommended.
+\item Choice of approximation method for computing p-values - 'asymptotic' is
+recommended.
 \item Decision criteria for statistical tests (one-sided or two-sided).
-\item Threshold for the estimated proportion of zeros beyond which results are considered unreliable.
+\item Threshold for the estimated proportion of zeros beyond which results are
+considered unreliable.
 }
 
-Dependencies: Requires \code{pscl::zeroinfl} for zero-inflated models, \code{MASS::glm.nb} for NB models,
-and other auxiliary functions as needed.
+Dependencies: Requires \code{pscl::zeroinfl} for zero-inflated models,
+\code{MASS::glm.nb} for NB models, and other auxiliary functions as needed.
 }
 \examples{
 
 set.seed(1)
-data <- c(rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25), 
-          rnbinom(100, size = 2, mu = 30))
-labels <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
-QRscore_ZINB_nSamples(samples = data, labels = labels,
-                              zero_inflation = FALSE, LR.test = FALSE, approx = "resample",
-                              resamp_num = 5000, pi_threshold = 0.95, measure = "mean")
+data <- c(
+    rnbinom(100, size = 2, mu = 20), rnbinom(100, size = 2, mu = 25),
+    rnbinom(100, size = 2, mu = 30)
+)
+labels <- factor(c(rep("Group1", 100), rep("Group2", 100), 
+          rep("Group3", 100)))
+QRscore_ZINB_nSamples(
+    samples = data, labels = labels,
+    zero_inflation = FALSE, LR.test = FALSE, approx = "resample",
+    resamp_num = 5000, pi_threshold = 0.95, measure = "mean"
+)
 
 # Example with zero inflation and dispersion shift detection
-data_zi <- c(rzinbinom(100, size = 2, mu = 20, pi = 0.1), 
-             rzinbinom(100, size = 3, mu = 20, pi = 0.1),
-             rzinbinom(100, size = 4, mu = 20, pi = 0.1))
-labels_zi <- factor(c(rep('Group1', 100), rep('Group2', 100), rep('Group3', 100)))
-QRscore_ZINB_nSamples(samples = data_zi, labels = labels_zi,
-                                 zero_inflation = TRUE, LR.test = TRUE, approx = "asymptotic",
-                                 resamp_num = 2000, pi_threshold = 0.95, measure = "dispersion")
+data_zi <- c(
+    rzinbinom(100, size = 2, mu = 20, pi = 0.1),
+    rzinbinom(100, size = 3, mu = 20, pi = 0.1),
+    rzinbinom(100, size = 4, mu = 20, pi = 0.1)
+)
+labels_zi <- factor(c(rep("Group1", 100), rep("Group2", 100), 
+              rep("Group3", 100)))
+QRscore_ZINB_nSamples(
+    samples = data_zi, labels = labels_zi,
+    zero_inflation = TRUE, LR.test = TRUE, approx = "asymptotic",
+    resamp_num = 2000, pi_threshold = 0.95, measure = "dispersion"
+)
 }
