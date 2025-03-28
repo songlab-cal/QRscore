@@ -77,6 +77,34 @@
     }
 }
 
+#' @keywords internal
+.run_qrscore_one_sample <- function(samples, p, wList, alternative,
+                                    approx, type, n_mom, resamp_number) {
+  # internal function for QRscoreTest
+  message(date(), ": Performing a one-sample test.")
+  assertthat::assert_that(!is.null(p),
+                          msg = "Exponent p must be provided."
+  )
+  assertthat::assert_that(!is.null(wList),
+                          msg = "wList must be provided."
+  )
+  assertthat::assert_that(length(samples) == length(wList),
+                          msg = "wList and sample lengths must match."
+  )
+  assertthat::assert_that(
+    p > 0 &&
+      abs(p - round(p)) < .Machine$double.eps^0.5,
+    msg = "Only integer p supported."
+  )
+  assertthat::assert_that(approx == "resample",
+                          msg = "Only 'resample' supported."
+  )
+  
+  QRscore_Flex(
+    samples, NULL, p, wList, alternative,
+    approx, type, n_mom, resamp_number
+  )
+}
 
 
 #' @keywords internal
@@ -251,13 +279,17 @@ QRscore_Flex <- function(x, y = NULL, p = 1, wList,
     assertthat::assert_that(approx %in% c("resample", "asymptotic"))
     wList <- wList / max(wList)
     message(date(), ": Normalizing weight vector...")
-    
+
     if (!is.null(y)) {
-        return(.qrscore_flex_two_sample(x, y, k, p, wList, alternative,
-                                      approx, type, resamp_number))
+        return(.qrscore_flex_two_sample(
+            x, y, k, p, wList, alternative,
+            approx, type, resamp_number
+        ))
     } else {
-        return(.qrscore_flex_one_sample(x, k, p, wList, alternative,
-                                      type, resamp_number))
+        return(.qrscore_flex_one_sample(
+            x, k, p, wList, alternative,
+            type, resamp_number
+        ))
     }
 }
 
@@ -342,50 +374,48 @@ QRscore_ZINB <- function(x, y, zero_inflation = TRUE, LR.test = FALSE,
         warning("Input values are not integers. Round input.")
         x <- round(x); y <- round(y)
     }
-    assertthat::assert_that(!is.null(y),
-        msg = "Please provide a non-null value for y.")
+    assertthat::assert_that(!is.null(y), msg = "y should not be NULL.")
     assertthat::assert_that(all(x >= 0) & all(y >= 0),
-        msg = "Input contains negative values.")
+        msg = "Input contains negative values."
+    )
     combined <- c(x, y); n <- length(y); k <- length(x); alpha <- k / (n + k)
-    computeweight <- ifelse(measure == "dispersion",
-                            computeweight_disp,
-                            computeweight_mean)
+    computeweight <- ifelse(
+        measure == "dispersion", computeweight_disp, computeweight_mean
+        )
     if (sum(combined == 0) == 0 || !zero_inflation) {
         est <- .estimate_nb_parameters(combined)
     } else {
-        est <- .fit_and_validate_zinb(combined, gene.name, pi_threshold, 
-                                      LR.test)
+        est <- .fit_and_validate_zinb(
+            combined, gene.name, pi_threshold, LR.test)
         if (is.null(est)) return(NA)
-        }
+    }
     results <- computeweight(est$beta, est$mu, est$pi, n, k)
     if (!p_value) return(results)
-        
     weights <- results$weight
     est_var <- alpha * (1 - alpha) * results$var
     zscore <- mean(weights[rank_x(x, y)])
     if (approx == "asymptotic" | (n >= 100 & k >= 50)) {
         zscore <- k / sqrt(n + k) * zscore
         p.value <- switch(alternative,
-                          "two.sided" = 2 * pnorm(abs(zscore),
-                                                  sd = sqrt(est_var),
-                                                  lower.tail = FALSE),
-                          "greater" = pnorm(zscore,
-                                            sd = sqrt(est_var),
-                                            lower.tail = FALSE),
-                          pnorm(zscore, sd = sqrt(est_var)))
+            "two.sided" = 2 * pnorm(
+                abs(zscore), sd = sqrt(est_var), lower.tail = FALSE),
+            "greater" = pnorm(
+                zscore, sd = sqrt(est_var), lower.tail = FALSE),
+            pnorm(zscore, sd = sqrt(est_var))
+        )
     } else {
         message(date(), ": Using resampling with ", resamp_num)
-        null_zscore <- replicate(resamp_num,
-                                 mean(weights[sample(seq_len(n + k), k)]))
+        null_zscore <- replicate(
+            resamp_num, mean(weights[sample(seq_len(n + k), k)])
+        )
         p.permute <- mean(null_zscore < zscore)
         p.value <- switch(alternative,
-                          "two.sided" = 2 * min(p.permute, 1 - p.permute),
-                          "greater" = 1 - p.permute,
-                          p.permute)
-        }
+            "two.sided" = 2 * min(p.permute, 1 - p.permute),
+            "greater" = 1 - p.permute,
+            p.permute)
+    }
     return(p.value)
 }
-
 
 #' Multi-Sample Nonparametric Test for Mean or Dispersion Differences in
 #' (Zero-Inflated) Negative Binomial Distributions.
@@ -480,30 +510,36 @@ QRscore_ZINB_nSamples <- function(samples, labels, zero_inflation = TRUE,
     B_matrix <- .generateBMatrix(n_groups)
     group_proportion <- group_sizes / N_all
     AA_matrix <- .generateAAmatrix(group_proportion)
-    
+
     x <- sample_list[[1]]
     y <- unlist(sample_list[-1], use.names = FALSE)
-    results <- QRscore_ZINB(x, y, zero_inflation = zero_inflation,
-                            LR.test = LR.test, approx = approx, 
-                            resamp_num = resamp_num, 
-                            pi_threshold = pi_threshold, gene.name = gene.name,
-                            measure = measure, p_value = FALSE
+    results <- QRscore_ZINB(x, y,
+        zero_inflation = zero_inflation,
+        LR.test = LR.test, approx = approx,
+        resamp_num = resamp_num,
+        pi_threshold = pi_threshold, gene.name = gene.name,
+        measure = measure, p_value = FALSE
     )
-    
-    if (!is.list(results) || is.null(results$weight)) return(NA)
-    
+
+    if (!is.list(results) || is.null(results$weight)) {
+        return(NA)
+    }
+
     weights <- results$weight
     S_scores <- .computeSscores(sample_list, weights, N_all)
     Lambda_matrix <- diag(1 / sqrt(group_proportion))
     Test_vec <- t(B_matrix) %*% Lambda_matrix %*% S_scores
     H_new <- .get_H_new(results$var, B_matrix, AA_matrix, gene.name)
     H_inv <- .get_H_inv(H_new, gene.name)
-    if (is.na(H_inv)[1]) return(NA)
-    
+    if (is.na(H_inv)[1]) {
+        return(NA)
+    }
+
     Q_all <- t(Test_vec) %*% H_inv %*% Test_vec
     p.value <- pchisq(Q_all, df = n_groups - 1, lower.tail = FALSE)
     return(p.value[1, 1])
 }
+
 
 #' QRscore Test
 #'
@@ -621,42 +657,44 @@ QRscoreTest <- function(samples, labels = NULL, p = NULL,
                         measure = "mean", perturb = TRUE,
                         use_base_r = TRUE) {
     assertthat::assert_that(!is.null(samples),
-                            msg = "Samples cannot be NULL.")
-    assertthat::assert_that(alternative %in%
-                              c("two.sided", "greater", "less"),
-                            msg = "Invalid alternative value.")
-    assertthat::assert_that(approx %in%
-                              c("resample", "asymptotic"),
-                            msg = "Invalid approximation method.")
-    assertthat::assert_that(type %in%
-                              c("unbiased", "valid", "both"),
-                            msg = "Invalid type value.")
-    
+        msg = "Samples cannot be NULL."
+    )
+    assertthat::assert_that(
+        alternative %in% c("two.sided", "greater", "less"),
+        msg = "Invalid alternative value."
+    )
+    assertthat::assert_that(
+        approx %in% c("resample", "asymptotic"),
+        msg = "Invalid approximation method."
+    )
+    assertthat::assert_that(
+        type %in% c("unbiased", "valid", "both"), msg = "Invalid type value.")
     if (is.null(labels) || length(unique(labels)) == 1) {
-        return(.run_qrscore_one_sample(samples, p, wList, alternative,
-                                approx, type, n_mom, resamp_number))
+        return(.run_qrscore_one_sample(
+            samples, p, wList, alternative, approx, type, n_mom, resamp_number
+        ))
     }
-    
     assertthat::assert_that(length(labels) == length(samples),
-                            msg = "Sample and label lengths must match.")
+        msg = "Sample and label lengths must match."
+    )
     unique_labels <- sort(unique(labels))
     n_groups <- length(unique_labels)
     sample_list <- lapply(unique_labels, function(l) {
         samples[labels == l]
     })
-    
     if (n_groups == 2) {
-        return(.run_qrscore_two_sample(sample_list, unique_labels,
-                                  alternative, approx, resamp_number, 
-                                  zero_inflation,LR.test, pi_threshold, 
-                                  gene.name, measure, p, 
-                                  wList, type, n_mom, use_base_r))
+        return(.run_qrscore_two_sample(
+            sample_list, unique_labels, alternative, approx, resamp_number,
+            zero_inflation, LR.test, pi_threshold, gene.name, measure, p,
+            wList, type, n_mom, use_base_r
+        ))
     }
-    
-    message(date(), ": Performing multi-sample test. Use ZINB or NB model to",
-            " estimate the weights.")
-    return(QRscore_ZINB_nSamples(samples, labels, zero_inflation,
-                                 LR.test, approx, resamp_number, pi_threshold,
-                                 gene.name, measure, perturb))
+    message(
+        date(), ": Performing multi-sample test. Use ZINB or NB model to",
+        " estimate the weights."
+    )
+    return(QRscore_ZINB_nSamples(
+        samples, labels, zero_inflation, LR.test, approx, resamp_number,
+        pi_threshold, gene.name, measure, perturb
+    ))
 }
-

@@ -14,13 +14,11 @@ vignette: >
 ---
 
 
-# QRscore: A Non-Parametric Approach to Differential Analysis in Genomics
+# Introduction
 
-## Introduction
-
-Differential expression (DE) analysis, aiming to identify genes with significant 
-expression changes across conditions, provides insights into molecular 
-mechanisms underlying aging, disease, and other biological processes. 
+Differential expression (DE) analysis, aiming to identify genes with 
+significant expression changes across conditions, provides insights into 
+molecular mechanisms underlying aging, disease, and other biological processes. 
 Traditional DE methods primarily detect changes in centrality (e.g., mean or 
 median), but often lack power against alternative hypotheses characterized by 
 changes in spread (e.g. variance or dispersion). Variance shifts, however, are 
@@ -42,10 +40,10 @@ offering enhanced capabilities for detecting distributional shifts. By
 integrating with widely-used Bioconductor packages such as `DESeq2` and 
 leveraging parallelization (`BiocParallel`), `QRscore` seamlessly integrates 
 into genomics workflows for differential expression and differential dispersion 
-analysis. This vignette demonstrates the utility of `QRscore` through a detailed 
-example.
+analysis. This vignette demonstrates the utility of `QRscore` through a 
+detailed example.
 
-## Installation
+# Installation
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -64,9 +62,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 if (!requireNamespace("DESeq2", quietly = TRUE)) {
     BiocManager::install("DESeq2")
-}
-if (!requireNamespace("BiocParallel", quietly = TRUE)) {
-    BiocManager::install("BiocParallel")
 }
 ```
 
@@ -89,7 +84,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 devtools::install_github("Fanding-Zhou/QRscore")
 ```
 
-## Overview
+# Overview
 
 This vignette illustrates how to:
 
@@ -100,22 +95,19 @@ This vignette illustrates how to:
 3. Obtain results for DEGs and DDGs.
 
 
-## Setup
+# Analysis
 
-### Package installation and Loading
+Here are detailed steps of using the package for analysis.
 
-
+## Package Loading
 
 ```{r}
 library(QRscore)
 library(DESeq2)
-library(BiocParallel)
 ```
 
 
-## Data Preparation
-
-### Load the data
+## Load the data
 
 The example dataset contains 3000 randomly selected genes in RNA-seq counts 
 data from whole blood samples in the GTEx project, along with associated 
@@ -125,7 +117,6 @@ metadata for age groups.
 data("example_dataset_raw_3000_genes")
 ```
 
-### Define Age Groups
 
 Age groups are aggregated for larger sample size and simplified analysis.
 
@@ -204,7 +195,8 @@ Genes with significant mean shifts are identified.
 results_2_sample_mean <- results_2_sample$mean_test
 results_2_sample_DEG <-
     results_2_sample_mean[
-      results_2_sample_mean$QRscore_Mean_adj_p_value < 0.05, ]
+        results_2_sample_mean$QRscore_Mean_adj_p_value < 0.05,
+    ]
 head(results_2_sample_DEG)
 ```
 
@@ -248,8 +240,9 @@ cutoffs (e.g. 0.05).
 ```{r}
 ### DEGs
 results_3_sample_mean <- results_3_sample$mean_test
-results_3_sample_DEG <-results_3_sample_mean[
-  results_3_sample_mean$QRscore_Mean_adj_p_value < 0.05, ]
+results_3_sample_DEG <- results_3_sample_mean[
+    results_3_sample_mean$QRscore_Mean_adj_p_value < 0.05,
+]
 head(results_3_sample_DEG)
 ```
 
@@ -261,7 +254,8 @@ results_3_sample_DDG <-
 head(results_3_sample_DDG)
 ```
 
-## Session Info
+# Session Info
+
 ```{r}
 sessionInfo()
 ```

@@ -17,10 +17,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 if (!requireNamespace("DESeq2", quietly = TRUE)) {
     BiocManager::install("DESeq2")
 }
-if (!requireNamespace("BiocParallel", quietly = TRUE)) {
-    BiocManager::install("BiocParallel")
-}
-
 ```
 
 
@@ -49,7 +45,6 @@ After installation, load QRscore and its dependencies:
 ```r
 library(QRscore)
 library(DESeq2)
-library(BiocParallel)
 ```
 
 ## Usage

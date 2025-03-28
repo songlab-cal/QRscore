@@ -2,28 +2,32 @@
 .prepare_gene_input <- function(normalized_matrix) {
     normalized_list <- split(
         t(normalized_matrix),
-        rep(seq_len(nrow(normalized_matrix)), 
-            each = ncol(normalized_matrix))
+        rep(seq_len(nrow(normalized_matrix)),
+            each = ncol(normalized_matrix)
+        )
     )
     gene_names <- rownames(normalized_matrix)
-    gene_names_list <- split(gene_names, 
-                             f = seq_len(length(gene_names)))
+    gene_names_list <- split(gene_names,
+        f = seq_len(length(gene_names))
+    )
     Map(function(x, y) list(x, y), normalized_list, gene_names_list)
 }
 
 #' @keywords internal
-.extract_and_format_results <- function(test_type, test_results, 
+.extract_and_format_results <- function(test_type, test_results,
                                         pval_name, rank = TRUE) {
     if (!is.null(test_results)) {
-        test_results[[paste0(test_type, "_adj_p_value")]] <- 
+        test_results[[paste0(test_type, "_adj_p_value")]] <-
             p.adjust(test_results[[pval_name]], method = "BH")
-      if (rank) {
-          test_results <- 
-              test_results[order(test_results[[pval_name]]), ]
-      }
-      pvals <- c(pval_name, paste0(test_type, "_adj_p_value"))
-      test_results <- test_results[, c(pvals, 
-                                       setdiff(names(test_results), pvals))]
+        if (rank) {
+            test_results <-
+                test_results[order(test_results[[pval_name]]), ]
+        }
+        pvals <- c(pval_name, paste0(test_type, "_adj_p_value"))
+        test_results <- test_results[, c(
+            pvals,
+            setdiff(names(test_results), pvals)
+        )]
     }
     return(test_results)
 }
@@ -42,28 +46,34 @@
             if (pairwise_test && test_mean) {
                 mean_p <- QRscoreTest(
                     samples = c(x, y),
-                    labels = rep(unique_labels[c(i, j)],
-                                  c(length(x), length(y))),
+                    labels = rep(
+                        unique_labels[c(i, j)],
+                        c(length(x), length(y))
+                    ),
                     measure = "mean",
                     gene.name = gene.name, ...
-                    )
-                mean_test_list[[paste0("Pairwise_Test_Mean_", 
-                                        lbl)]] <- mean_p
+                )
+                mean_test_list[[paste0(
+                    "Pairwise_Test_Mean_",
+                    lbl
+                )]] <- mean_p
             }
             if (pairwise_test && test_dispersion) {
                 var_p <- QRscoreTest(
                     samples = c(x, y),
-                    labels = rep(unique_labels[c(i, j)],
-                                  c(length(x), length(y))),
+                    labels = rep(
+                        unique_labels[c(i, j)],
+                        c(length(x), length(y))
+                    ),
                     measure = "dispersion",
                     gene.name = gene.name, ...
-                    )
+                )
                 var_test_list[[paste0("Pairwise_Test_Var_", lbl)]] <- var_p
             }
             if (pairwise_logFC && test_mean) {
                 logfc_mean <- log2(mean(y) / mean(x))
                 mean_test_list[[paste0("Log_FC_Mean_", lbl)]] <- logfc_mean
-            } 
+            }
             if (pairwise_logFC && test_dispersion) {
                 logfc_var <- log2(var(y) / var(x))
                 var_test_list[[paste0("Log_FC_Var_", lbl)]] <- logfc_var
@@ -80,19 +90,25 @@
                              do_test, do_logfc,
                              test_list, suffix, ...) {
     if (do_test) {
-        pval <- QRscoreTest(samples = c(x, y),
-                            labels = rep(c(label1, label2),
-                                         c(length(x), length(y))),
-                            measure = measure,
-                            gene.name = gene.name, ...)
+        pval <- QRscoreTest(
+            samples = c(x, y),
+            labels = rep(
+                c(label1, label2),
+                c(length(x), length(y))
+            ),
+            measure = measure,
+            gene.name = gene.name, ...
+        )
         test_list[[paste0("QRscore_", suffix, "_p_value")]] <- pval
     }
-    
+
     if (do_logfc) {
         stat_fn <- if (measure == "mean") mean else var
         logfc <- log2(stat_fn(y) / stat_fn(x))
-        test_list[[paste0("Log_FC_", suffix, "_",
-                          label2, "_vs_", label1)]] <- logfc
+        test_list[[paste0(
+            "Log_FC_", suffix, "_",
+            label2, "_vs_", label1
+        )]] <- logfc
     }
     return(test_list)
 }
@@ -108,18 +124,16 @@
         x <- gene_vec[labels == unique_labels[1]]
         y <- gene_vec[labels == unique_labels[2]]
         if (test_mean) {
-            mean_test_list <- .add_test_result(x, y, unique_labels[1],
-                                               unique_labels[2], gene_vec,
-                                               gene.name, "mean", pairwise_test,
-                                               pairwise_logFC, mean_test_list,
-                                               "Mean",...)
+            mean_test_list <- .add_test_result(
+                x, y, unique_labels[1], unique_labels[2], gene_vec, gene.name, 
+                "mean", pairwise_test, pairwise_logFC, mean_test_list,"Mean",...
+                )
         }
         if (test_dispersion) {
-            var_test_list <- .add_test_result(x, y, unique_labels[1],
-                                              unique_labels[2], gene_vec,
-                                              gene.name, "dispersion", 
-                                              pairwise_test, pairwise_logFC, 
-                                              var_test_list, "Var",...)
+            var_test_list <- .add_test_result(
+              x, y, unique_labels[1], unique_labels[2], gene_vec, gene.name, 
+              "dispersion", pairwise_test, pairwise_logFC, var_test_list, 
+              "Var",...)
         }
     } else if (length(unique_labels) > 2) {
         if (test_mean) {
