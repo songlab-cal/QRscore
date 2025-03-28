@@ -1,7 +1,7 @@
 Package: QRscore
 Title: Quantile Rank Score
-Version: 0.99.7
-Date: 2024-12-01
+Version: 0.99.8
+Date: 2025-03-28
 Authors@R: c(
     person("Fanding", "Zhou", email = "zhoufd@berkeley.edu", role = c("cre","aut"),
     comment = c(ORCID = "0000-0003-1306-740X")),
