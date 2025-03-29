@@ -66,13 +66,13 @@ col_zeros <- colMeans(bulk_sparse_mat==0, na.rm = TRUE)
 col_ids <- which(col_means>5&col_zeros<0.2) # The threshold can be modified
 
 ## normalization
-bulk_df = bulk_sparse_mat[,col_ids]
-bulk_df_inv = t(bulk_df)
-coldata = data.frame(age = ages)
+bulk_df <- bulk_sparse_mat[,col_ids]
+bulk_df_inv <- t(bulk_df)
+coldata <- data.frame(age = ages)
 dds <- DESeqDataSetFromMatrix(countData = bulk_df_inv,
                                 colData = coldata,
                                 design = ~ age)
-dds = estimateSizeFactors(dds)
+dds <- estimateSizeFactors(dds)
 normalized_mat <- counts(dds, normalized=TRUE)
 ```
 
@@ -80,9 +80,9 @@ normalized_mat <- counts(dds, normalized=TRUE)
 analysis.
 
 ```r
-kept_samples = coldata$age %in% c("40-49", "60-69")
-normalized_mat = normalized_mat[, kept_samples]
-coldata = coldata[kept_samples,]
+kept_samples <- coldata$age %in% c("40-49", "60-69")
+normalized_mat <- normalized_mat[, kept_samples]
+coldata <- coldata[kept_samples,]
 results <- QRscoreGenetest(normalized_mat_1, coldata_1, pairwise_test = TRUE,
 pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
 approx = "asymptotic")
