@@ -1,3 +1,7 @@
+# QRscore 0.99.9 (04/13/2025)
+
+Our package is now on Bioconductor! See the link https://bioconductor.org/packages/devel/bioc/html/QRscore.html
+
 # QRscore 0.99.8 (03/28/2025)
 
 ### General

@@ -223,7 +223,7 @@
 #' \eqn{k\geqslant 50} such that \eqn{\frac{k}{n}\geqslant 0.001},
 #' function automatically uses Gaussian approximation to the null.
 #'
-#' Dependencies: functions in `auxiliary.R`
+#' Dependencies: functions in `utils.R`
 #' @param x First sample
 #' @param y Second sample
 #' @param p Exponent value in defining test statistic (must be integer)
