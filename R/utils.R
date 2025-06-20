@@ -172,59 +172,76 @@
 
 
 
-#' @keywords internal
-.estimate_nb_parameters <- function(combined_data) {
+.estimate_nb_parameters <- function(counts, offset = NULL) {
     # internal function for QRscore_ZINB
     message(date(), ": Estimating NB parameters.")
-    fitNB <- MASS::glm.nb(combined_data ~ 1)
-    return(list(
-        beta = min(fitNB$theta, 100),
-        mu = exp(fitNB$coefficients["(Intercept)"]),
-        pi = 0
-    ))
+
+    if (is.null(offset)) {
+        fit <- MASS::glm.nb(counts ~ 1)
+    } else {
+        df <- data.frame(y = counts, offset_var = offset)
+        fit <- tryCatch(
+            MASS::glm.nb(y ~ offset(offset_var), data = df),
+            error = function(e) {
+                message("Offset model failed, using normalized counts.")
+                df2 <- data.frame(y = round(counts/exp(offset)))
+                MASS::glm.nb(y ~ 1, data = df2)
+        })
+    }
+
+    list(beta = min(fit$theta, 100), mu = exp(coef(fit)["(Intercept)"]), pi = 0)
 }
 
-#' @keywords internal
-.estimate_zinb_parameters <- function(combined_data, gene.name) {
-    # internal function for .fit_and_validate_zinb (QRscore_ZINB)
+.estimate_zinb_parameters <- function(counts, offset = NULL) {
+    # internal function for QRscore_ZINB
     message(date(), ": Estimating ZINB parameters.")
-    fitZINB <- pscl::zeroinfl(combined_data ~ 1 | 1, dist = "negbin")
+    if (!is.null(offset)) {
+        df <- data.frame(y = counts, offset_var = offset)
+        fitZINB <- tryCatch(
+            pscl::zeroinfl(y ~ offset(offset_var) | 1, data = df, dist = "negbin"), 
+            error = function(e) {
+                message("Offset model failed, using normalized counts.")
+                df2 <- data.frame(y = round(counts/exp(offset)))
+                pscl::zeroinfl(y ~ 1 | 1, data = df2, dist = "negbin")
+        })
+    } else {
+        df <- data.frame(y = counts)
+        fitZINB <- pscl::zeroinfl(y ~ 1 | 1, data = df, dist = "negbin")
+    }
     beta <- min(fitZINB$theta, 100)
     mu <- exp(fitZINB$coef$count[1])
     zcoef <- fitZINB$coef$zero[1]
-    pi <- exp(zcoef) / (1 + exp(zcoef))
+    pi <- exp(zcoef)/(1 + exp(zcoef))
     return(list(fitZINB = fitZINB, beta = beta, mu = mu, pi = pi))
 }
 
-#' @keywords internal
-.fit_and_validate_zinb <- function(combined, gene.name,
-                                   pi_threshold, LR.test) {
-    # internal function for QRscore_ZINB
-    zinb <- .estimate_zinb_parameters(combined, gene.name)
 
+
+.fit_and_validate_zinb <- function(combined, offset = NULL, gene.name, pi_threshold, LR.test) {
+    # internal function for QRscore_ZINB
+    zinb <- .estimate_zinb_parameters(combined, offset = offset)
     if (LR.test) {
         message(date(), ": Applying likelihood ratio test.")
-        fitNB <- MASS::glm.nb(combined ~ 1)
-        lrt_p <- as.numeric(pchisq(
-            2 * (logLik(zinb$fitZINB) - logLik(fitNB)),
-            df = 1, lower.tail = FALSE
-        ))
+        if (!is.null(offset)) {
+            df <- data.frame(y = combined, offset_var = offset)
+            fitNB <- MASS::glm.nb(y ~ offset(offset_var), data = df)
+        } else {
+            fitNB <- MASS::glm.nb(combined ~ 1)
+        }
+
+        lrt_p <- as.numeric(pchisq(2 * (logLik(zinb$fitZINB) - logLik(fitNB)), 
+                                   df = 1, lower.tail = FALSE))
         if (lrt_p >= 0.05) {
-            return(.estimate_nb_parameters(combined))
+            return(.estimate_nb_parameters(combined, offset = offset))
         }
     }
 
     if (zinb$pi > pi_threshold) {
         msg <- if (is.null(gene.name)) {
-            sprintf(
-                "The estimated probability of zeros is > %.2f.",
-                pi_threshold
-            )
+            sprintf("The estimated probability of zeros is > %.2f.", pi_threshold)
         } else {
-            sprintf(
-                "The estimated probability of zeros for gene %s is > %.2f.",
-                gene.name, pi_threshold
-            )
+            sprintf("The estimated probability of zeros for gene %s is > %.2f.", 
+                    gene.name, pi_threshold)
         }
         warning(sprintf("%s Returning NA.", msg))
         return(NULL)
@@ -232,6 +249,9 @@
 
     return(zinb)
 }
+
+
+
 
 #' @keywords internal
 .generateBMatrix <- function(d) {

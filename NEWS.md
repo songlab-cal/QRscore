@@ -1,3 +1,7 @@
+# QRscore 0.99.10 (07/19/2025)
+
+Revise on the algorithm - taking size factors into account when estimating ZINB/NB parameters.
+
 # QRscore 0.99.9 (04/13/2025)
 
 Our package is now on Bioconductor! See the link https://bioconductor.org/packages/devel/bioc/html/QRscore.html

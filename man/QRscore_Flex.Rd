@@ -89,7 +89,7 @@ Both are efficient and well-calibrated. For \eqn{n\geqslant 100} and
 \eqn{k\geqslant 50} such that \eqn{\frac{k}{n}\geqslant 0.001},
 function automatically uses Gaussian approximation to the null.
 
-Dependencies: functions in \code{auxiliary.R}
+Dependencies: functions in \code{utils.R}
 }
 \examples{
 

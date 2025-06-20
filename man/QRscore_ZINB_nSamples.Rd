@@ -8,6 +8,7 @@
 QRscore_ZINB_nSamples(
   samples,
   labels,
+  size_factors = NULL,
   zero_inflation = TRUE,
   LR.test = FALSE,
   approx = "resample",
@@ -22,6 +23,10 @@ QRscore_ZINB_nSamples(
 \item{samples}{Vector of all sample measurements.}
 
 \item{labels}{Group labels for each sample.}
+
+\item{size_factors}{Optional vector of size factors for weight estimation.
+If provided, log-transformed size factors are used as offsets in
+NB/ZINB model fitting.}
 
 \item{zero_inflation}{Boolean, if TRUE, the function chooses between ZINB and
 NB models based on data; if FALSE, only NB model is applied.}
@@ -108,5 +113,18 @@ QRscore_ZINB_nSamples(
     samples = data_zi, labels = labels_zi,
     zero_inflation = TRUE, LR.test = TRUE, approx = "asymptotic",
     resamp_num = 2000, pi_threshold = 0.95, measure = "dispersion"
+)
+# Multi-sample NB example with size factors
+sf <- runif(300, 0.5, 1.5)
+data_sf <- c(
+    rnbinom(100, size = 2, mu = sf[1:100] * 20),
+    rnbinom(100, size = 2, mu = sf[101:200] * 30),
+    rnbinom(100, size = 2, mu = sf[201:300] * 40)
+)
+labels_sf <- factor(rep(c("Group1", "Group2", "Group3"), each = 100))
+QRscore_ZINB_nSamples(
+    samples = data_sf, labels = labels_sf, size_factors = sf,
+    zero_inflation = FALSE, LR.test = FALSE, approx = "asymptotic",
+    resamp_num = 10000, pi_threshold = 0.95, measure = "mean"
 )
 }

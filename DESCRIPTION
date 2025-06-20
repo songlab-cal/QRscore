@@ -1,6 +1,6 @@
 Package: QRscore
 Title: Quantile Rank Score
-Version: 0.99.9
+Version: 0.99.10
 Date: 2025-03-28
 Authors@R: c(
     person("Fanding", "Zhou", email = "zhoufd@berkeley.edu", role = c("cre","aut"),
@@ -35,8 +35,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2023-07-10 07:50:30 UTC; fandingzhou
-VignetteBuilder: knitr,BiocStyle
+Packaged: 2024-07-10 07:50:30 UTC; fandingzhou
+VignetteBuilder: BiocStyle
 URL: https://github.com/songlab-cal/QRscore
 BugReports: https://github.com/songlab-cal/QRscore/issues
 biocViews: StatisticalMethod, DifferentialExpression, GeneExpression, StructuralGenomics, GeneTarget

@@ -67,13 +67,13 @@ col_ids <- which(col_means>5&col_zeros<0.2) # The threshold can be modified
 
 ## normalization
 bulk_df <- bulk_sparse_mat[,col_ids]
-bulk_df_inv <- t(bulk_df)
+expr_mat <- t(bulk_df)
 coldata <- data.frame(age = ages)
-dds <- DESeqDataSetFromMatrix(countData = bulk_df_inv,
+dds <- DESeqDataSetFromMatrix(countData = expr_mat,
                                 colData = coldata,
                                 design = ~ age)
 dds <- estimateSizeFactors(dds)
-normalized_mat <- counts(dds, normalized=TRUE)
+est_size_factors = dds$sizeFactor
 ```
 
 2. **Running Analysis**: Example code for setting up and performing the QRscore 
@@ -81,11 +81,12 @@ analysis.
 
 ```r
 kept_samples <- coldata$age %in% c("40-49", "60-69")
-normalized_mat <- normalized_mat[, kept_samples]
+expr_mat <- expr_mat[, kept_samples] # directly use raw counts
+est_size_factors <- est_size_factors[kept_samples]
 coldata <- coldata[kept_samples,]
-results <- QRscoreGenetest(normalized_mat_1, coldata_1, pairwise_test = TRUE,
-pairwise_logFC = TRUE, test_mean = TRUE, test_dispersion = TRUE, num_cores = 4,
-approx = "asymptotic")
+results <- QRscoreGenetest(expr_mat, coldata, size_factors = est_size_factors, 
+pairwise_test = TRUE, pairwise_logFC = TRUE, test_mean = TRUE, 
+test_dispersion = TRUE, num_cores = 4, approx = "asymptotic")
 ```
 
 3. **Interpreting Results**: QRscore outputs include differential expression 

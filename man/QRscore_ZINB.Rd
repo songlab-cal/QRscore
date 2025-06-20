@@ -8,6 +8,7 @@ Dispersion Parameters in (Zero-Inflated) Negative Binomial Distributions.}
 QRscore_ZINB(
   x,
   y,
+  size_factors = NULL,
   zero_inflation = TRUE,
   LR.test = FALSE,
   approx = "resample",
@@ -23,6 +24,10 @@ QRscore_ZINB(
 \item{x}{First sample}
 
 \item{y}{Second sample}
+
+\item{size_factors}{Optional vector of size factors for weight estimation.
+If provided, log-transformed size factors are used as offsets in
+NB/ZINB model fitting.}
 
 \item{zero_inflation}{If TRUE, automatically chooses between ZINB and NB
 models based on the data; if FALSE, applies NB model estimation.}
@@ -100,5 +105,14 @@ QRscore_ZINB(
     zero_inflation = TRUE, LR.test = FALSE, alternative = "two.sided",
     approx = "resample", resamp_num = 50000, measure = "dispersion"
 )
-
+# Two-sample example with size factors, zero inflation, and dispersion shift
+sf_x <- runif(100, 0.5, 1.5)
+sf_y <- runif(100, 0.5, 1.5)
+QRscore_ZINB(
+    x = rzinbinom(100, size = 4, mu = sf_x * 25, pi = 0.1),
+    y = rzinbinom(100, size = 1,   mu = sf_y * 25, pi = 0.1),
+    size_factors = c(sf_x, sf_y),
+    zero_inflation = TRUE, LR.test = TRUE, alternative = "two.sided",
+    approx = "resample", resamp_num = 20000, measure = "dispersion"
+)
 }

@@ -7,6 +7,7 @@
 QRscoreTest(
   samples,
   labels = NULL,
+  size_factors = NULL,
   p = NULL,
   wList = NULL,
   alternative = "two.sided",
@@ -28,6 +29,10 @@ QRscoreTest(
 
 \item{labels}{An optional vector of group labels corresponding to each entry
 in \code{samples}.}
+
+\item{size_factors}{Optional vector of size factors for weight estimation.
+If provided, log-transformed size factors are used as offsets in
+NB/ZINB model fitting.}
 
 \item{p}{The exponent used in the power sum test statistic, required if
 \code{wList} is not \code{NULL}.}
@@ -146,5 +151,14 @@ labels <- c(rep("Group1", 150), rep("Group2", 100), rep("Group3", 30))
 QRscoreTest(
     samples = data, labels = labels, alternative = "two.sided",
     approx = "asymptotic", measure = "dispersion"
+)
+
+# Two-sample NB test with size factors
+sf <- runif(200, 0.5, 1.5)
+x <- rnbinom(100, size = 2, mu = sf[1:100] * 20)
+y <- rnbinom(100, size = 2, mu = sf[101:200] * 35)
+QRscoreTest(
+    samples = c(x, y), labels = rep(c("A", "B"), each = 100),
+    size_factors = sf, measure = "mean", zero_inflation = FALSE
 )
 }

@@ -8,7 +8,7 @@ output:
     number_sections: true
     fig_caption: true
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{BiocStyle::html_document}
   %\VignetteIndexEntry{QRscore}
   %\VignetteEncoding{UTF-8}
 ---
@@ -141,15 +141,15 @@ col_zeros <- colMeans(bulk_sparse_mat == 0, na.rm = TRUE)
 col_ids <- which(col_means > 5 & col_zeros < 0.2)
 
 bulk_df <- bulk_sparse_mat[, col_ids]
-bulk_df_inv <- t(bulk_df)
+expr_mat <- t(bulk_df)
 coldata <- data.frame(age = ages)
 dds <- DESeqDataSetFromMatrix(
-    countData = bulk_df_inv,
+    countData = expr_mat,
     colData = coldata,
     design = ~age
 )
 dds <- estimateSizeFactors(dds)
-normalized_mat <- counts(dds, normalized = TRUE)
+est_size_factors = dds$sizeFactor
 ```
 
 ```{r}
@@ -166,8 +166,9 @@ This example compares the 20-39 and 60-79 age groups.
 ```{r}
 ## define age groups and subset dataset
 kept_samples <- coldata$age %in% c("20-39", "60-79")
-normalized_mat_1 <- normalized_mat[, kept_samples]
-coldata_1 <- coldata[kept_samples, ]
+expr_mat_1 <- expr_mat[, kept_samples] # directly use raw counts
+est_size_factors_1 <- est_size_factors [kept_samples]
+coldata_1 <- coldata[kept_samples,]
 ```
 
 ### Run QRscore Test
@@ -177,14 +178,17 @@ ranked p-values of differential variance and differential mean tests for
 all genes, together with log ratio of mean shifts and variance shifts.
 
 ```{r}
-results_2_sample <- QRscoreGenetest(normalized_mat_1,
+results_2_sample <- QRscoreGenetest(expr_mat_1,
     coldata_1,
+    size_factors = est_size_factors_1,
     pairwise_test = TRUE,
     pairwise_logFC = TRUE, test_mean = TRUE,
     test_dispersion = TRUE, num_cores = 2,
     approx = "asymptotic"
 )
 ```
+
+
 
 
 ### Differentially Expressed Genes (DEGs)
@@ -224,13 +228,16 @@ additionally obtain the pairwise test p-values.
 
 
 ```{r}
-results_3_sample <- QRscoreGenetest(normalized_mat, coldata$age,
+results_3_sample <- QRscoreGenetest(
+    expr_mat, coldata$age, size_factors = est_size_factors,
     pairwise_test = FALSE,
     pairwise_logFC = TRUE, test_mean = TRUE,
     test_dispersion = TRUE, num_cores = 2,
     approx = "asymptotic"
 )
 ```
+
+
 
 For detecting DDGs and DEGs, it's recommended to use 3-sample test p-values 
 (namely `QRscore_Mean_adj_p_value` and `QRscore_Var_adj_p_value`) with certain 
@@ -253,6 +260,9 @@ results_3_sample_DDG <-
     results_3_sample_var[results_3_sample_var$QRscore_Var_adj_p_value < 0.05, ]
 head(results_3_sample_DDG)
 ```
+
+
+
 
 # Session Info
 

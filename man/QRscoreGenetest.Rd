@@ -5,8 +5,9 @@
 \title{Perform Differential Expression Analysis using QRscore}
 \usage{
 QRscoreGenetest(
-  normalized_matrix,
+  expr_matrix,
   labels,
+  size_factors = NULL,
   pairwise_test = FALSE,
   pairwise_logFC = FALSE,
   test_mean = TRUE,
@@ -19,10 +20,12 @@ QRscoreGenetest(
 )
 }
 \arguments{
-\item{normalized_matrix}{A prefiltered normalized matrix (gene \eqn{\times}
+\item{expr_matrix}{A prefiltered raw count matrix (gene \eqn{\times}
 sample).}
 
 \item{labels}{A vector of labels corresponding to the samples.}
+
+\item{size_factors}{A vector of size factors estimated from DESeq2}
 
 \item{pairwise_test}{Logical, whether to perform pairwise test statistics
 for more than two groups.}
@@ -55,17 +58,20 @@ method.
 }
 \examples{
 data(example_dataset)
-results <- QRscoreGenetest(example_dataset$example_data1, 
-  example_dataset$labels1,
+results <- QRscoreGenetest(
+  expr_matrix = example_dataset$example_data1,
+  labels = example_dataset$labels1,
+  size_factors = example_dataset$size_factors1,
   pairwise_test = FALSE, pairwise_logFC = TRUE,
   test_mean = TRUE, test_dispersion = TRUE, num_cores = 2,
   approx = "asymptotic"
 )
-
 head(results$var_test)
 
-results2 <- QRscoreGenetest(example_dataset$example_data2, 
-  example_dataset$labels2,
+results2 <- QRscoreGenetest(
+  expr_matrix = example_dataset$example_data2,
+  labels = example_dataset$labels2,
+  size_factors = example_dataset$size_factors2,
   pairwise_test = TRUE, pairwise_logFC = TRUE,
   test_mean = TRUE, test_dispersion = FALSE, num_cores = 2,
   approx = "asymptotic"
