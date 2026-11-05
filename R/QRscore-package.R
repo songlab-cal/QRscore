@@ -15,7 +15,8 @@
 #' @docType package
 #' @name QRscore
 #' @aliases QRscore-package
-#' @importFrom stats pnorm qnbinom dnbinom rnbinom
+#' @importFrom stats pnorm qnbinom dnbinom rnbinom coef logLik p.adjust
+#'   pchisq runif setNames var wilcox.test
 #' @importFrom pscl zeroinfl
 #' @importFrom MASS glm.nb
 #' @importFrom assertthat assert_that

@@ -88,3 +88,39 @@ test_that("QRscore_ZINB identifies distribution differences correctly", {
     expect_true(prop_null <= 0.07)
     expect_true(prop_alt > 0.05)
 })
+
+
+test_that("size factors stay aligned when the first group is larger", {
+    set.seed(9)
+    sfA <- runif(120, 0.3, 3)
+    sfB <- runif(60, 0.3, 3)
+    a <- rnbinom(120, size = 3, mu = 20 * sfA)
+    b <- rnbinom(60, size = 3, mu = 20 * sfB)
+    set.seed(1)
+    p_test <- QRscoreTest(
+        samples = c(a, b), labels = rep(c("A", "B"), c(120, 60)),
+        size_factors = c(sfA, sfB), measure = "mean",
+        zero_inflation = FALSE, approx = "asymptotic"
+    )
+    # Group B is smaller, so it becomes x and must keep its own size factors.
+    set.seed(1)
+    p_direct <- QRscore_ZINB(
+        b, a, size_factors = c(sfB, sfA), measure = "mean",
+        zero_inflation = FALSE, approx = "asymptotic"
+    )
+    expect_equal(p_test, p_direct)
+})
+
+
+test_that("NB dispersion estimate is the MLE when glm.nb diverges", {
+    set.seed(3)
+    # Zero-heavy counts with a large mean: theta.ml's Newton iterations
+    # start far from the optimum and run off to theta ~ 3e5 on this data.
+    y <- rnbinom(80, mu = 60, size = 1)
+    y[runif(80) < 0.4] <- 0
+    est <- QRscore:::.estimate_nb_parameters(y)
+    fit <- QRscore:::.fit_nb_model(y)
+    glm_ll <- suppressWarnings(as.numeric(logLik(MASS::glm.nb(y ~ 1))))
+    expect_true(fit$loglik >= glm_ll - 1e-6)
+    expect_true(est$beta < 5)
+})

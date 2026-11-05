@@ -83,3 +83,31 @@ test_that("computeweight_disp computes weights correctly and contains no NAs", {
     expect_true(all(!is.na(results$weight)), "No NAs in weight vector")
     expect_true(!is.na(results$var), "Variance is not NA")
 })
+
+
+test_that("computeweight_mean variance matches the variance of its weights", {
+    for (p in list(c(2, 10, 0), c(5, 3, 0.2), c(100, 5, 0), c(1e4, 3, 0.1))) {
+        res <- computeweight_mean(p[1], p[2], p[3], n = 20000, k = 20000)
+        expect_equal(res$var, var(res$weight), tolerance = 0.01)
+    }
+})
+
+test_that("weights are finite and approach the Poisson limit for large beta", {
+    x <- 0:10
+    for (beta in c(1e3, 1e6)) {
+        expect_false(anyNA(computeweight_disp(beta, 4, 0.1, 50, 25)$weight))
+        expect_false(anyNA(computeweight_mean(beta, 4, 0.1, 50, 25)$weight))
+    }
+    z <- QRscore:::.z_function_disp(x, 1e8, 4, 0)
+    expect_equal(1e8 * z, -((x - 4)^2 - x) / 2, tolerance = 1e-5)
+})
+
+
+test_that("weights stay finite when P(X = 0) underflows (large mu, large beta)", {
+    for (p in list(c(1e6, 1000, 0), c(1e6, 5000, 0.1), c(100, 3e5, 0))) {
+        expect_silent(d <- computeweight_disp(p[1], p[2], p[3], 2000, 2000))
+        m <- computeweight_mean(p[1], p[2], p[3], 2000, 2000)
+        expect_false(anyNA(c(d$weight, m$weight, d$var, m$var)))
+        expect_equal(d$var, var(d$weight), tolerance = 0.05)
+    }
+})
