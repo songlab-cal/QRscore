@@ -6,6 +6,7 @@
 * Corrected the variance used in the mean test, improving power for
   low-count genes.
 * Updated the citation to the published article (Cell Reports Methods, 2025).
+* Restored the package vignette, which was no longer being built.
 
 # QRscore 0.99.10 (07/19/2025)
 

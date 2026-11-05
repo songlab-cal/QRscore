@@ -8,7 +8,7 @@ output:
     number_sections: true
     fig_caption: true
 vignette: >
-  %\VignetteEngine{BiocStyle::html_document}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{QRscore}
   %\VignetteEncoding{UTF-8}
 ---
