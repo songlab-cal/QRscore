@@ -1,3 +1,12 @@
+# QRscore 1.4.1
+
+* Size factors now stay aligned with their samples in two-group tests.
+* Improved numerical stability of NB/ZINB weight estimation, including
+  `glm.nb` dispersion fits and large dispersion values.
+* Corrected the variance used in the mean test, improving power for
+  low-count genes.
+* Updated the citation to the published article (Cell Reports Methods, 2025).
+
 # QRscore 0.99.10 (07/19/2025)
 
 Revise on the algorithm - taking size factors into account when estimating ZINB/NB parameters.

@@ -1,6 +1,6 @@
 bibentry(
   bibtype = "article",
-  title = "Robust and Adaptive Non-Parametric Tests for Detecting General Distributional Shifts in Gene Expression",
+  title = "Robust and adaptive non-parametric tests for detecting general distributional shifts in gene expression",
   author = c(
     person("Fanding", "Zhou"),
     person("Alan J.", "Aw"),
@@ -8,8 +8,10 @@ bibentry(
     person("Jonathan", "Fischer"),
     person("Yun S.", "Song")
   ),
+  journal = "Cell Reports Methods",
   year = "2025",
-  journal = "bioRxiv",
-  note = "Preprint available at bioRxiv",
-  doi = "https://doi.org/10.1101/2025.03.06.641952"  
+  volume = "5",
+  number = "9",
+  pages = "101147",
+  doi = "10.1016/j.crmeth.2025.101147"
 )
