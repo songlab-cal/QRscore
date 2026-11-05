@@ -146,50 +146,132 @@
 }
 
 
+# Largest NB dispersion used for the weights. Above this the NB distribution is
+# indistinguishable from its Poisson limit for any realistic mean. The weight
+# formulas below are written to stay accurate for large beta.
+.BETA_CAP <- 1e6
+
 #' @keywords internal
-.Gamma_derivative_disp <- function(theta, x, beta) {
-    # internal function for computeweight_disp
-    x4 <- gamma(theta * beta)
-    x1 <- beta * digamma(theta * beta + x)
-    x2 <- (beta * (x4 * digamma(theta * beta))) / x4
-    return(x1 - x2)
+.log1pmx <- function(t) {
+    # log(1 + t) - t, accurate for small |t| where direct evaluation cancels:
+    # log(1 + t) - t = sum_{j >= 2} (-1)^(j + 1) t^j / j
+    out <- log1p(t) - t
+    small <- abs(t) < 0.1
+    if (any(small)) {
+        j <- 2:40
+        out[small] <- vapply(t[small], function(tt) {
+            sum((-1)^(j + 1) * tt^j / j)
+        }, numeric(1))
+    }
+    out
 }
 
 #' @keywords internal
 .z_function_disp <- function(x, beta, mu, pi) {
-    # internal function for computeweight_disp
-    if (x == 0) {
-        num <- (1 - pi) * (beta / (beta + mu))^(beta + 1) *
-            ((beta + mu) * log(beta / (beta + mu)) + mu)
-        denom <- (1 - pi) * (beta / (beta + mu))^beta + pi
-        return(num / denom)
-    } else {
-        return((.Gamma_derivative_disp(1, x, beta) +
-            beta * (mu - x) / (beta + mu) +
-            beta * log(beta / (beta + mu))) * (1 - pi))
+    # Score-based weights for a dispersion shift (internal function for
+    # computeweight_disp), vectorised over integer counts x.
+    #
+    # Algebraically identical to
+    #   beta * (digamma(beta + x) - digamma(beta)) + beta * (mu - x)/(beta + mu)
+    #     + beta * log(beta / (beta + mu))           (x > 0, times 1 - pi)
+    # but written without cancellation, using
+    #   digamma(beta + x) - digamma(beta) = sum_{j=0}^{x-1} 1 / (beta + j),
+    # so that it stays accurate for large beta (near the Poisson limit).
+    u <- mu / (beta + mu)
+    l1 <- .log1pmx(-u)                       # log(1 - u) + u
+    log_r <- log1p(-u)                       # log(beta / (beta + mu))
+    xmax <- max(x)
+    S <- if (xmax > 0) {
+        j <- 0:(xmax - 1)
+        c(0, cumsum((mu - j) / ((beta + j) * (beta + mu))))
+    } else 0
+    z <- (1 - pi) * beta * (S[x + 1] + l1)
+    zero <- x == 0
+    if (any(zero)) {
+        # (1 - pi) r^(beta + 1) (beta + mu) l1 / ((1 - pi) r^beta + pi)
+        #   = beta * l1 * w, with w the NB share of P(X = 0); computed this way
+        # so that it does not become 0/0 when r^beta underflows.
+        z[zero] <- beta * l1 * .nb_zero_share(beta, log_r, pi)
     }
+    z
+}
+
+#' @keywords internal
+.nb_zero_share <- function(beta, log_r, pi) {
+    # (1 - pi) r^beta / ((1 - pi) r^beta + pi), evaluated in log space
+    if (pi <= 0) return(1)
+    stats::plogis(log1p(-pi) + beta * log_r - log(pi))
 }
 
 
 
-.estimate_nb_parameters <- function(counts, offset = NULL) {
-    # internal function for QRscore_ZINB
-    message(date(), ": Estimating NB parameters.")
+#' @keywords internal
+.nb_mle <- function(counts, offset = NULL) {
+    # Direct maximisation of the intercept-only NB likelihood over
+    # (log mu, log theta). Used to check MASS::glm.nb, whose theta.ml Newton
+    # iterations can diverge to very large theta when started far from the
+    # optimum (e.g. zero-heavy genes with a large mean).
+    o <- if (is.null(offset)) rep(0, length(counts)) else offset
+    nll <- function(par) {
+        -sum(dnbinom(counts, size = exp(par[2]), mu = exp(par[1] + o),
+                     log = TRUE))
+    }
+    b0 <- log(sum(counts) / sum(exp(o)))
+    best <- NULL
+    for (lt0 in c(0, log(10))) {
+        fit <- tryCatch(
+            suppressWarnings(stats::optim(c(b0, lt0), nll, method = "BFGS",
+                control = list(reltol = 1e-12, maxit = 1000))),
+            error = function(e) NULL)
+        if (!is.null(fit) && is.finite(fit$value) &&
+            (is.null(best) || fit$value < best$value)) {
+            best <- fit
+        }
+    }
+    if (is.null(best)) return(NULL)
+    list(mu = exp(best$par[1]), theta = exp(best$par[2]), loglik = -best$value)
+}
 
+#' @keywords internal
+.fit_nb_model <- function(counts, offset = NULL) {
+    # Intercept-only NB fit (with optional offset). Returns mu, theta and the
+    # log-likelihood. glm.nb is used first; if a direct maximisation reaches a
+    # clearly higher likelihood, glm.nb did not converge to the MLE and the
+    # direct estimate is used instead.
     if (is.null(offset)) {
-        fit <- MASS::glm.nb(counts ~ 1)
+        fit <- suppressWarnings(MASS::glm.nb(counts ~ 1))
     } else {
         df <- data.frame(y = counts, offset_var = offset)
         fit <- tryCatch(
-            MASS::glm.nb(y ~ offset(offset_var), data = df),
+            suppressWarnings(MASS::glm.nb(y ~ offset(offset_var), data = df)),
             error = function(e) {
                 message("Offset model failed, using normalized counts.")
-                df2 <- data.frame(y = round(counts/exp(offset)))
-                MASS::glm.nb(y ~ 1, data = df2)
-        })
+                NULL
+            })
+        if (is.null(fit)) {
+            res <- .fit_nb_model(round(counts / exp(offset)))
+            res$normalized <- TRUE
+            return(res)
+        }
     }
+    res <- list(mu = unname(exp(coef(fit)["(Intercept)"])),
+                theta = fit$theta,
+                loglik = as.numeric(logLik(fit)))
+    mle <- .nb_mle(counts, offset)
+    if (!is.null(mle) && (!is.finite(res$loglik) ||
+                          mle$loglik > res$loglik + 1e-6)) {
+        message(date(), ": glm.nb did not reach the NB maximum likelihood ",
+                "estimate; using direct maximisation.")
+        res <- mle
+    }
+    res
+}
 
-    list(beta = min(fit$theta, 100), mu = exp(coef(fit)["(Intercept)"]), pi = 0)
+.estimate_nb_parameters <- function(counts, offset = NULL) {
+    # internal function for QRscore_ZINB
+    message(date(), ": Estimating NB parameters.")
+    fit <- .fit_nb_model(counts, offset = offset)
+    list(beta = min(fit$theta, .BETA_CAP), mu = fit$mu, pi = 0)
 }
 
 .estimate_zinb_parameters <- function(counts, offset = NULL) {
@@ -208,7 +290,7 @@
         df <- data.frame(y = counts)
         fitZINB <- pscl::zeroinfl(y ~ 1 | 1, data = df, dist = "negbin")
     }
-    beta <- min(fitZINB$theta, 100)
+    beta <- min(fitZINB$theta, .BETA_CAP)
     mu <- exp(fitZINB$coef$count[1])
     zcoef <- fitZINB$coef$zero[1]
     pi <- exp(zcoef)/(1 + exp(zcoef))
@@ -222,15 +304,12 @@
     zinb <- .estimate_zinb_parameters(combined, offset = offset)
     if (LR.test) {
         message(date(), ": Applying likelihood ratio test.")
-        if (!is.null(offset)) {
-            df <- data.frame(y = combined, offset_var = offset)
-            fitNB <- MASS::glm.nb(y ~ offset(offset_var), data = df)
-        } else {
-            fitNB <- MASS::glm.nb(combined ~ 1)
+        fitNB <- .fit_nb_model(combined, offset = offset)
+        if (isTRUE(fitNB$normalized)) {
+            stop("NB offset model failed; likelihood ratio test not available.")
         }
-
-        lrt_p <- as.numeric(pchisq(2 * (logLik(zinb$fitZINB) - logLik(fitNB)), 
-                                   df = 1, lower.tail = FALSE))
+        lrt_stat <- max(0, 2 * (as.numeric(logLik(zinb$fitZINB)) - fitNB$loglik))
+        lrt_p <- pchisq(lrt_stat, df = 1, lower.tail = FALSE)
         if (lrt_p >= 0.05) {
             return(.estimate_nb_parameters(combined, offset = offset))
         }
@@ -527,25 +606,21 @@ computeweight_mean <- function(beta, mu, pi, n, k) {
         mu = mu,
         pi = pi
     )
-    z_function <- function(x) {
-        if (x == 0) {
-            mu * (pi - 1) * (beta / (beta + mu))^(beta + 1) /
-                (pi + (1 - pi) * (beta / (beta + mu))^beta)
-        } else {
-            (beta * x / (beta + mu) - beta * mu / (beta + mu)) * (1 - pi)
-        }
-    }
+    u <- mu / (beta + mu)
+    r <- 1 - u                                   # beta / (beta + mu)
+    rb <- exp(beta * log1p(-u))                  # r^beta, accurate for large beta
+    w0 <- .nb_zero_share(beta, log1p(-u), pi)   # (1 - pi) r^beta / P(X = 0)
+    zvals <- ifelse(Gdict == 0,
+                    -mu * r * w0,
+                    (1 - pi) * r * (Gdict - mu))
+    # Exact variance of the weight function under the fitted ZINB:
+    # Var z(X) = E[z^2] - E[z]^2.
     term1 <- beta * mu / (beta + mu)
-    term2 <- (beta / (beta + mu))^beta
-    term3 <- (1 - pi)^2
-    term4 <- beta^2 * term3 * (beta / (beta + mu))^(2 * beta + 2)
-    term5 <- pi + (1 - pi) * term2
-
-    H_value <- (term1 - term1^2 * term2) * term3 + term4 / term5
-
-    test_var <- H_value # Put alpha*(1-alpha)* in QRscore_ZINB
+    Ez2 <- (1 - pi)^3 * (term1 - mu^2 * r^2 * rb) +
+        mu^2 * (1 - pi) * r^2 * rb * w0
+    Ez <- -pi * (1 - pi) * mu * r * rb
+    test_var <- Ez2 - Ez^2 # Put alpha*(1-alpha)* in QRscore_ZINB
     results <- list()
-    zvals <- vapply(Gdict, z_function, numeric(1))
     results$weight <- zvals - mean(zvals)
     if (any(is.na(test_var)) ||
         any(is.infinite(test_var)) || all(test_var == 0)) {
@@ -554,7 +629,6 @@ computeweight_mean <- function(beta, mu, pi, n, k) {
     } else {
         results$var <- test_var
     }
-    results$var <- test_var
     return(results)
 }
 
@@ -615,25 +689,19 @@ computeweight_disp <- function(beta, mu, pi, n, k,
         x_values <- 0:tail.q
     }
 
-    z_x_values <- vapply(x_values, function(x) {
-        .z_function_disp(x, beta, mu, pi)
-    }, numeric(1))
+    z_x_values <- .z_function_disp(x_values, beta, mu, pi)
 
     E_z <- sum(z_x_values * x_prob)
     H_value <- sum((z_x_values - E_z)^2 * x_prob)
     test_var <- H_value
 
-    zvals <- vapply(Gdict, function(x) {
-        .z_function_disp(x, beta, mu, pi)
-    }, numeric(1))
+    zvals <- .z_function_disp(Gdict, beta, mu, pi)
 
     results <- list()
     # Adjust the weights to mean 0.
     results$weight <- zvals - mean(zvals)
     assertthat::assert_that(sum(is.na(results$weight)) == 0,
-        msg = "Weight cannot be calculated.
-                          Check if estimated dispersion parameter beta is
-                          less than 100."
+        msg = "Weight cannot be calculated."
     )
 
     if (any(is.na(test_var)) ||

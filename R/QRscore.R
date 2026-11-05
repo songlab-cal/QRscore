@@ -120,20 +120,20 @@
     
     x_label <- unique_labels[1]
     y_label <- unique_labels[2]
+    if (!is.null(size_factor_list)) {
+        sf_x <- size_factor_list[[1]]
+        sf_y <- size_factor_list[[2]]
+    }
+    # The smaller group becomes x. Size factors must be swapped together with
+    # the samples so that each count keeps its own size factor.
     if (length(x) > length(y)) {
         tmp <- x; x <- y; y <- tmp
         tmp <- x_label; x_label <- y_label; y_label <- tmp
-    }
-    if(!is.null(size_factor_list)){
-        sf_x <- size_factor_list[[1]]
-        sf_y <- size_factor_list[[2]]
-        if (length(x) > length(y)) {
+        if (!is.null(size_factor_list)) {
             tmp <- sf_x; sf_x <- sf_y; sf_y <- tmp
         }
-        size_factors <- c(sf_x, sf_y)
-    } else {
-        size_factors <- NULL
     }
+    size_factors <- if (!is.null(size_factor_list)) c(sf_x, sf_y) else NULL
     message(date(), ": Performing a two-sample test. '", x_label,
             "' is x and '", y_label, "' is y.")
     if (is.null(wList) || is.null(p)) {
