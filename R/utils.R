@@ -168,13 +168,12 @@
 
 #' @keywords internal
 .z_function_disp <- function(x, beta, mu, pi) {
-    # Score-based weights for a dispersion shift (internal function for
-    # computeweight_disp), vectorised over integer counts x.
-    #
-    # Algebraically identical to
+    # Score of the ZINB log-likelihood for a dispersion change (size = theta *
+    # beta) at theta = 1; internal function for computeweight_disp, vectorised
+    # over integer counts x. For x > 0 this is
     #   beta * (digamma(beta + x) - digamma(beta)) + beta * (mu - x)/(beta + mu)
-    #     + beta * log(beta / (beta + mu))           (x > 0, times 1 - pi)
-    # but written without cancellation, using
+    #     + beta * log(beta / (beta + mu)),
+    # written without cancellation, using
     #   digamma(beta + x) - digamma(beta) = sum_{j=0}^{x-1} 1 / (beta + j),
     # so that it stays accurate for large beta (near the Poisson limit).
     u <- mu / (beta + mu)
@@ -185,7 +184,7 @@
         j <- 0:(xmax - 1)
         c(0, cumsum((mu - j) / ((beta + j) * (beta + mu))))
     } else 0
-    z <- (1 - pi) * beta * (S[x + 1] + l1)
+    z <- beta * (S[x + 1] + l1)
     zero <- x == 0
     if (any(zero)) {
         # (1 - pi) r^(beta + 1) (beta + mu) l1 / ((1 - pi) r^beta + pi)
@@ -612,14 +611,12 @@ computeweight_mean <- function(beta, mu, pi, n, k) {
     w0 <- .nb_zero_share(beta, log1p(-u), pi)   # (1 - pi) r^beta / P(X = 0)
     zvals <- ifelse(Gdict == 0,
                     -mu * r * w0,
-                    (1 - pi) * r * (Gdict - mu))
-    # Exact variance of the weight function under the fitted ZINB:
-    # Var z(X) = E[z^2] - E[z]^2.
+                    r * (Gdict - mu))
+    # The weights are the score of the ZINB log-likelihood for a change in
+    # log(mu), so E[z(X)] = 0 and the variance is E[z(X)^2]:
     term1 <- beta * mu / (beta + mu)
-    Ez2 <- (1 - pi)^3 * (term1 - mu^2 * r^2 * rb) +
-        mu^2 * (1 - pi) * r^2 * rb * w0
-    Ez <- -pi * (1 - pi) * mu * r * rb
-    test_var <- Ez2 - Ez^2 # Put alpha*(1-alpha)* in QRscore_ZINB
+    test_var <- (1 - pi) * (term1 - mu^2 * r^2 * rb) +
+        mu^2 * (1 - pi) * r^2 * rb * w0 # Put alpha*(1-alpha)* in QRscore_ZINB
     results <- list()
     results$weight <- zvals - mean(zvals)
     if (any(is.na(test_var)) ||

@@ -1,3 +1,8 @@
+# QRscore 1.5.2
+
+* Weights for zero-inflated models now follow the exact score of the ZINB
+  likelihood.
+
 # QRscore 1.5.1
 
 * Size factors now stay aligned with their samples in two-group tests.

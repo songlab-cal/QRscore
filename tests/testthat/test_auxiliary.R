@@ -111,3 +111,26 @@ test_that("weights stay finite when P(X = 0) underflows (large mu, large beta)",
         expect_equal(d$var, var(d$weight), tolerance = 0.05)
     }
 })
+
+
+test_that("weights equal the score of the ZINB log-likelihood", {
+    h <- 1e-6
+    loglik <- function(x, mu, size, pi) {
+        if (x == 0) log(pi + (1 - pi) * dnbinom(0, size = size, mu = mu))
+        else log(1 - pi) + dnbinom(x, size = size, mu = mu, log = TRUE)
+    }
+    for (p in list(c(2, 10, 0), c(5, 3, 0.2), c(0.5, 40, 0.5))) {
+        b <- p[1]; mu <- p[2]; pi <- p[3]; x <- 0:10
+        # dispersion: derivative in theta (size = theta * beta) at theta = 1
+        sd <- vapply(x, function(xx) (loglik(xx, mu, b * (1 + h), pi) -
+                                      loglik(xx, mu, b * (1 - h), pi)) / (2 * h), 1)
+        expect_equal(QRscore:::.z_function_disp(x, b, mu, pi), sd, tolerance = 1e-6)
+        # mean: derivative in log(mu)
+        sm <- vapply(x, function(xx) (loglik(xx, mu * exp(h), b, pi) -
+                                      loglik(xx, mu * exp(-h), b, pi)) / (2 * h), 1)
+        u <- mu / (b + mu)
+        w0 <- QRscore:::.nb_zero_share(b, log1p(-u), pi)
+        zm <- ifelse(x == 0, -mu * (1 - u) * w0, (1 - u) * (x - mu))
+        expect_equal(zm, sm, tolerance = 1e-6)
+    }
+})
